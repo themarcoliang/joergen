@@ -14,13 +14,14 @@ const Youtube = google.youtube({
 });
 const client = new Discord.Client();
 
-function playVideo(id, message){
+function playVideo(id, message, islive){
     // console.log('videoId: ' + id);
-    const channel = message.member.voice.channel;
+    let channel = message.member.voice.channel;
     // const stream = ytdl('https://www.youtube.com/watch?v=' + id, {filter: 'audioonly'});
     
     channel.join().then((connection) => {
-        const dispatcher = connection.play(ytdl('https://www.youtube.com/watch?v=' + id, {highWaterMark: 1<<25, filter: 'audioonly'}), {highWaterMark: 1});
+        let stream = ytdl('https://www.youtube.com/watch?v=' + id, islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly' });
+        let dispatcher = connection.play(stream, {highWaterMark: 1});
         dispatcher.on('finish', ()=>{
             console.log('Finished playing');
             // dispatcher.destroy();
@@ -58,8 +59,9 @@ client.on('message', function (msg) {
                         "q" : query,
                         "type": "video",
                     }).then(function(response){
-                        playVideo(response.data.items[0].id.videoId, msg);
-                        msg.channel.send('Playing ' + response.data.items[0].snippet.title);
+                        playVideo(response.data.items[0].id.videoId, msg,response.data.items[0].snippet.liveBroadcastContent === "live");
+                        msg.channel.send(`Playing ${response.data.items[0].snippet.title}`);
+                        console.log(`Playing ${response.data.items[0].snippet.title}!`);
                     }).catch(function(err){
                         console.error("Unexpected error", err);
                     });
