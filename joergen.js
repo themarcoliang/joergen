@@ -41,7 +41,7 @@ function playVideo(id, islive){
     // dispatcher.destory();
 }
 
-function stopPlaying()
+function pauseVideo()
 {
     if(!playing){
         latestMessage.reply('nothing is playing!');
@@ -49,9 +49,9 @@ function stopPlaying()
     }
     else{
         dispatcher.pause();
-        latestMessage.channel.send(`K I'm stopping`);
-        console.log('Stopping playback');
-        channel.leave();
+        latestMessage.channel.send(`K I'm pausing`);
+        console.log('Pausing playback');
+        // channel.leave();
         playing = false;
     }
 }
@@ -89,14 +89,15 @@ client.on('message', function (msg) {
                         console.error("Unexpected error", err);
                     });
         }
-        else if(arg == 'stop')
+        else if(arg == 'stop' || arg == 'pause')
         {
             // console.log('stopping');
-            stopPlaying();
+            pauseVideo();
         }
         else if(arg == 'pause')
         {
-            console.log('pausing');
+            // console.log('pausing');
+            // resumeVideo();
         }
 
     }
