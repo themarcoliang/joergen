@@ -7,6 +7,7 @@ const {google} = require('googleapis');
 var dispatcher = null;
 var channel = null;
 var playing = false;
+var latestMessage = null;
 
 const keys = JSON.parse(fs.readFileSync('./keys.json'));
 const TOKEN = keys.discord_token;
@@ -18,9 +19,9 @@ const Youtube = google.youtube({
 });
 const client = new Discord.Client();
 
-function playVideo(id, message, islive){
+function playVideo(id, islive){
     // console.log('videoId: ' + id);
-    channel = message.member.voice.channel;
+    channel = latestMessage.member.voice.channel;
     // const stream = ytdl('https://www.youtube.com/watch?v=' + id, {filter: 'audioonly'});
     
     channel.join().then((connection) => {
@@ -43,11 +44,12 @@ function playVideo(id, message, islive){
 function stopPlaying()
 {
     if(!playing){
-        msg.reply('nothing is playing!');
+        latestMessage.reply('nothing is playing!');
         return;
     }
     else{
         dispatcher.pause();
+        latestMessage.channel.send(`K I'm stopping`);
         console.log('Stopping playback');
         channel.leave();
         playing = false;
@@ -59,13 +61,14 @@ client.on('ready', ()=> {
 });
 
 client.on('message', function (msg) {
-    const message = msg.content.toLowerCase();
+    latestMessage = msg;
+    const message = latestMessage.content.toLowerCase();
     const split_message = message.split(' ');
     if(message.startsWith('joergen') && split_message.length > 1) //only care if message starts with joergen and has more than one word
     {
-        if(!msg.member.voice.channel)
+        if(!latestMessage.member.voice.channel)
         {
-            msg.reply('you must be in a voice channel to do that!');
+            latestMessage.reply('you must be in a voice channel to do that!');
             console.log('Failed to play: user not in a voice channel');
             return;
         }
@@ -79,16 +82,16 @@ client.on('message', function (msg) {
                         "q" : query,
                         "type": "video",
                     }).then(function(response){
-                        playVideo(response.data.items[0].id.videoId, msg,response.data.items[0].snippet.liveBroadcastContent === "live");
-                        msg.channel.send(`Playing ${response.data.items[0].snippet.title}`);
-                        console.log(`Playing ${response.data.items[0].snippet.title}!`);
+                        playVideo(response.data.items[0].id.videoId, response.data.items[0].snippet.liveBroadcastContent === "live");
+                        latestMessage.channel.send(`Playing ${response.data.items[0].snippet.title}`);
+                        console.log(`Ok, I'll play ${response.data.items[0].snippet.title}!`);
                     }).catch(function(err){
                         console.error("Unexpected error", err);
                     });
         }
         else if(arg == 'stop')
         {
-            console.log('stopping');
+            // console.log('stopping');
             stopPlaying();
         }
         else if(arg == 'pause')
