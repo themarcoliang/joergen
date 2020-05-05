@@ -20,7 +20,13 @@ function playVideo(id, message){
     // const stream = ytdl('https://www.youtube.com/watch?v=' + id, {filter: 'audioonly'});
     
     channel.join().then((connection) => {
-        dispatcher = connection.play(ytdl('https://www.youtube.com/watch?v=' + id, {filter: 'audioonly'}));
+        const dispatcher = connection.play(ytdl('https://www.youtube.com/watch?v=' + id, {highWaterMark: 1<<25, filter: 'audioonly'}), {highWaterMark: 1});
+        dispatcher.on('finish', ()=>{
+            console.log('Finished playing');
+            // dispatcher.destroy();
+            channel.leave();
+        });
+        dispatcher.on('error', console.error);
     }).catch(function(err){
         console.error("Unexpected error with voice channel", err);
     });
