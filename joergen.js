@@ -4,7 +4,11 @@ const ytdl = require('ytdl-core');
 const {google} = require('googleapis');
 // const {authenticate} = require('@google-cloud/local-auth');
 
-var keys = JSON.parse(fs.readFileSync('./keys.json'));
+var dispatcher = null;
+var channel = null;
+var playing = false;
+
+const keys = JSON.parse(fs.readFileSync('./keys.json'));
 const TOKEN = keys.discord_token;
 const YT_KEY = keys.yt_key;
 
@@ -16,14 +20,16 @@ const client = new Discord.Client();
 
 function playVideo(id, message, islive){
     // console.log('videoId: ' + id);
-    let channel = message.member.voice.channel;
+    channel = message.member.voice.channel;
     // const stream = ytdl('https://www.youtube.com/watch?v=' + id, {filter: 'audioonly'});
     
     channel.join().then((connection) => {
         let stream = ytdl('https://www.youtube.com/watch?v=' + id, islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly' });
-        let dispatcher = connection.play(stream, {highWaterMark: 1});
+        dispatcher = connection.play(stream, {highWaterMark: 1});
+        playing = true;
         dispatcher.on('finish', ()=>{
             console.log('Finished playing');
+            playing = false;
             // dispatcher.destroy();
             channel.leave();
         });
@@ -32,6 +38,20 @@ function playVideo(id, message, islive){
         console.error("Unexpected error with voice channel", err);
     });
     // dispatcher.destory();
+}
+
+function stopPlaying()
+{
+    if(!playing){
+        msg.reply('nothing is playing!');
+        return;
+    }
+    else{
+        dispatcher.pause();
+        console.log('Stopping playback');
+        channel.leave();
+        playing = false;
+    }
 }
 
 client.on('ready', ()=> {
@@ -69,6 +89,11 @@ client.on('message', function (msg) {
         else if(arg == 'stop')
         {
             console.log('stopping');
+            stopPlaying();
+        }
+        else if(arg == 'pause')
+        {
+            console.log('pausing');
         }
 
     }
