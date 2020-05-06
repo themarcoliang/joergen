@@ -8,6 +8,7 @@ var dispatcher = null;
 var channel = null;
 var playing = false;
 var latestMessage = null;
+var queue = [];
 
 const keys = JSON.parse(fs.readFileSync('./keys.json'));
 const TOKEN = keys.discord_token;
@@ -18,27 +19,64 @@ const Youtube = google.youtube({
     auth: YT_KEY
 });
 const client = new Discord.Client();
+client.login(TOKEN);
 
-function playVideo(id, islive){
-    // console.log('videoId: ' + id);
-    channel = latestMessage.member.voice.channel;
-    // const stream = ytdl('https://www.youtube.com/watch?v=' + id, {filter: 'audioonly'});
+async function getResponse(query){
+    try {
+        return await Youtube.search.list({
+            "part": "snippet",
+            "q": query,
+            "type": "video",
+        })}
+    catch (err) {
+        console.error("Unexpected error", err);
+    }
+
+}
+
+function playVideo(response){
+    
+    try{
+        channel = latestMessage.member.voice.channel;
+        let id = response.data.items[0].id.videoId;
+        let islive = response.data.items[0].snippet.liveBroadcastContent == 'live';
+    }catch(err){
+        console.error("Error reading response: ", err);
+        return;
+    }
     
     channel.join().then((connection) => {
         let stream = ytdl('https://www.youtube.com/watch?v=' + id, islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly' });
-        dispatcher = connection.play(stream, {highWaterMark: 1});
-        playing = true;
+        try{
+            dispatcher = connection.play(stream, {highWaterMark: 1});
+            playing = true;
+        }catch(err){
+            console.error(err);
+            return;
+        }
+        console.log(`Playing ${response.data.items[0].snippet.title}`);
+        latestMessage.channel.send(`Ok, I'll play ${response.data.items[0].snippet.title}`);
+
         dispatcher.on('finish', ()=>{
-            console.log('Finished playing');
-            playing = false;
-            // dispatcher.destroy();
-            channel.leave();
+            queue.shift(); //pops first item off
+            console.log(queue.length);
+            if(queue.length == 0) //queue is empty
+            {
+                console.log('Finished playing');
+                playing = false;
+                channel.leave();
+            }
+            else
+            {
+                console.log('Next song');
+                playVideo(queue[0]);
+            }
         });
+        
         dispatcher.on('error', console.error);
     }).catch(function(err){
         console.error("Unexpected error with voice channel", err);
     });
-    // dispatcher.destory();
 }
 
 function pauseVideo()
@@ -56,11 +94,23 @@ function pauseVideo()
     }
 }
 
+
+
+function stopVideo(){
+    playing = false;
+    if(dispatcher!=null)
+    {
+        console.log("queue length: " + queue.length);
+        dispatcher.end();
+        dispatcher = null;
+    }
+}
+
 client.on('ready', ()=> {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('message', function (msg) {
+client.on('message', async function (msg) {
     latestMessage = msg;
     const message = latestMessage.content.toLowerCase();
     const split_message = message.split(' ');
@@ -77,30 +127,51 @@ client.on('message', function (msg) {
         if(arg === 'play')
         {
             const query = split_message.slice(2).join(' ');
-            return Youtube.search.list({
-                        "part": "snippet",
-                        "q" : query,
-                        "type": "video",
-                    }).then(function(response){
-                        playVideo(response.data.items[0].id.videoId, response.data.items[0].snippet.liveBroadcastContent === "live");
-                        latestMessage.channel.send(`Playing ${response.data.items[0].snippet.title}`);
-                        console.log(`Ok, I'll play ${response.data.items[0].snippet.title}!`);
-                    }).catch(function(err){
-                        console.error("Unexpected error", err);
-                    });
+            
+            if(query=='' && (dispatcher==null || !dispatcher.paused))
+            {
+                latestMessage.reply("you gotta tell me what to play smh");
+                return;
+            }
+
+            if(dispatcher != null && dispatcher.paused) //paused
+            {
+                dispatcher.resume();
+                console.log('Resuming');
+                latestMessage.channel.send('K, resuming');
+                playing = true;
+                return;
+            }
+            else if(queue.length == 0) //empty queue
+            {
+                let response = getResponse(query);
+                queue.push(response);
+                playVideo(response);
+            }
+            else { //non-empty queue
+                let response = getResponse(query);
+                queue.push(response);
+                console.log("Queuing song, queue length: " + queue.length);
+                latestMessage.channel.send(`Something's playing already, I'll queue ${response.data.items[0].snippet.title} for later`);
+            }
         }
-        else if(arg == 'stop' || arg == 'pause')
+        else if(arg == 'pause')
         {
             // console.log('stopping');
             pauseVideo();
         }
-        else if(arg == 'pause')
+        else if(arg == 'stop')
         {
-            // console.log('pausing');
+            queue = [];
+            stopVideo();
+        }
+        else if(arg == 'skip')
+        {
+            // console.log('Skipping');
             // resumeVideo();
+            stopVideo();
         }
 
     }
 });
 
-client.login(TOKEN);
