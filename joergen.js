@@ -27,24 +27,32 @@ async function getResponse(query){
             "part": "snippet",
             "q": query,
             "type": "video",
+            "maxResults": 1
         })}
     catch (err) {
         console.error("Unexpected error", err);
+        return;
     }
-
+    // data for testing
+    // var response = {
+            
+    // };
+    // return response;
 }
 
 function playVideo(response){
-    
+    // console.log(response.data.items[0].snippet);
     try{
         channel = latestMessage.member.voice.channel;
-        let id = response.data.items[0].id.videoId;
-        let islive = response.data.items[0].snippet.liveBroadcastContent == 'live';
-    }catch(err){
-        console.error("Error reading response: ", err);
+        var id = response.data.items[0].id.videoId;
+        var islive = response.data.items[0].snippet.liveBroadcastContent === 'live';
+        var videoTitle = response.data.items[0].snippet.title;
+    }
+    catch(error){
+        console.error(error);
         return;
     }
-    
+        
     channel.join().then((connection) => {
         let stream = ytdl('https://www.youtube.com/watch?v=' + id, islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly' });
         try{
@@ -54,8 +62,8 @@ function playVideo(response){
             console.error(err);
             return;
         }
-        console.log(`Playing ${response.data.items[0].snippet.title}`);
-        latestMessage.channel.send(`Ok, I'll play ${response.data.items[0].snippet.title}`);
+        console.log("Playing " + videoTitle);
+        latestMessage.channel.send("Ok, I'll play " + videoTitle);
 
         dispatcher.on('finish', ()=>{
             queue.shift(); //pops first item off
@@ -79,30 +87,26 @@ function playVideo(response){
     });
 }
 
-function pauseVideo()
-{
-    if(!playing){
-        latestMessage.reply('nothing is playing!');
-        return;
-    }
-    else{
-        dispatcher.pause();
-        latestMessage.channel.send(`K I'm pausing`);
-        console.log('Pausing playback');
-        // channel.leave();
-        playing = false;
-    }
+function pauseVideo(){
+    dispatcher.pause();
+    latestMessage.channel.send(`K I'm pausing`);
+    console.log('Pausing playback');
+    playing = false;
 }
-
-
 
 function stopVideo(){
     playing = false;
     if(dispatcher!=null)
     {
-        console.log("queue length: " + queue.length);
+        // console.log("Stopping");
         dispatcher.end();
         dispatcher = null;
+        if(queue.length == 0)
+        {
+            console.log("Bot disconnecting");
+            latestMessage.channel.send("I'M LEAVING!!");
+            channel.leave();
+        }
     }
 }
 
@@ -123,55 +127,65 @@ client.on('message', async function (msg) {
             return;
         }
         const arg = split_message.slice(1,2).join(' ');
-        // console.log(arg);
         if(arg === 'play')
         {
             const query = split_message.slice(2).join(' ');
             
-            if(query=='' && (dispatcher==null || !dispatcher.paused))
+            if(query=='' )
             {
-                latestMessage.reply("you gotta tell me what to play smh");
-                return;
-            }
-
-            if(dispatcher != null && dispatcher.paused) //paused
-            {
-                dispatcher.resume();
-                console.log('Resuming');
-                latestMessage.channel.send('K, resuming');
-                playing = true;
-                return;
+                if(dispatcher==null || !dispatcher.paused) //player's not paused
+                {
+                    latestMessage.reply("you gotta tell me what to play smh");
+                    return;
+                }
+                else //paused
+                {
+                    dispatcher.resume();
+                    console.log('Resuming');
+                    latestMessage.channel.send('K, resuming');
+                    playing = true;
+                    return;
+                }
+                
             }
             else if(queue.length == 0) //empty queue
             {
-                let response = getResponse(query);
+                let response = await getResponse(query);
                 queue.push(response);
                 playVideo(response);
             }
             else { //non-empty queue
-                let response = getResponse(query);
+                let response = await getResponse(query);
                 queue.push(response);
                 console.log("Queuing song, queue length: " + queue.length);
-                latestMessage.channel.send(`Something's playing already, I'll queue ${response.data.items[0].snippet.title} for later`);
+                latestMessage.channel.send("Something's playing already, I'll queue " + response.data.items[0].snippet.title + " for later");
             }
         }
         else if(arg == 'pause')
         {
-            // console.log('stopping');
+            console.log('Pausing');
             pauseVideo();
         }
         else if(arg == 'stop')
         {
             queue = [];
+            console.log('Stopping');
+            latestMessage.channel.send('K, stopping...');
             stopVideo();
         }
         else if(arg == 'skip')
         {
-            // console.log('Skipping');
-            // resumeVideo();
-            stopVideo();
+            if(dispatcher==null || dispatcher.paused)
+            {
+                latestMessage.reply("Nothing is playing though");
+            }
+            else
+            {
+                console.log('Skipping');
+                latestMessage.channel.send('K, skipping...');
+                stopVideo();
+            }
         }
-
     }
 });
 
