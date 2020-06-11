@@ -135,7 +135,7 @@ client.on('message', async function (msg) {
     if(!latestMessage.author.bot) //only care if not from bot
     {
         const arg = split_message.slice(0,1).join(' '); //get arguments for joergen
-        console.log(arg);
+        //console.log(arg);
         if(arg === '!play')
         {
             if(!verifyChannel()) return;

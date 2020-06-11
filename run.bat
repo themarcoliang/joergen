@@ -1,1 +1,2 @@
 node joergen.js
+pause

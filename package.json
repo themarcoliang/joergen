@@ -8,7 +8,8 @@
     "ffmpeg-static": "^4.2.1",
     "google-auth-library": "^6.0.0",
     "googleapis": "^49.0.0",
-    "ytdl-core": "^2.1.1"
+    "opusscript": "0.0.7",
+    "ytdl-core": "^2.1.7"
   },
   "devDependencies": {},
   "scripts": {
