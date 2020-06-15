@@ -1,8 +1,26 @@
- const fs = require('fs');
+const fs = require('fs');
 const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
 const {google} = require('googleapis');
 // const {authenticate} = require('@google-cloud/local-auth');
+const dgram = require('dgram');
+const server = dgram.createSocket('udp4');
+
+server.on('error', (err) => {
+  console.log(`server error:\n${err.stack}`);
+  server.close();
+});
+
+server.on('message', (msg, rinfo) => {
+  console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+});
+
+server.on('listening', () => {
+  const address = server.address();
+  console.log(`server listening ${address.address}:${address.port}`);
+});
+
+server.bind(420);
 
 var dispatcher = null;
 var channel = null;
