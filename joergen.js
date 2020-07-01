@@ -2,9 +2,23 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
 const {google} = require('googleapis');
-// const {authenticate} = require('@google-cloud/local-auth');
 const dgram = require('dgram');
 const server = dgram.createSocket('udp4');
+
+const keys = JSON.parse(fs.readFileSync('./keys.json'));
+const TOKEN = keys.discord_token;
+const YT_KEY = keys.yt_key;
+
+const Youtube = google.youtube({
+    version: 'v3',
+    auth: YT_KEY
+});
+const client = new Discord.Client();
+
+var dispatcher = null;
+var channel = null;
+var latestMessage = null;
+var queue = [];
 
 server.on('error', (err) => {
     console.log(`server error:\n${err.stack}`);
@@ -16,7 +30,6 @@ server.on('message', async (msg, rinfo) => {
 
     switch (msg.toString()){
         case 'unpause':
-            // console.log("hi");
             if(dispatcher != null && dispatcher.paused)
             {
                 dispatcher.resume();
@@ -76,23 +89,12 @@ server.on('listening', () => {
 });
 
 server.bind(420);
-
-var dispatcher = null;
-var channel = null;
-var latestMessage = null;
-var queue = [];
-
-// const KEYWORD = 'joergen';
-const keys = JSON.parse(fs.readFileSync('./keys.json'));
-const TOKEN = keys.discord_token;
-const YT_KEY = keys.yt_key;
-
-const Youtube = google.youtube({
-    version: 'v3',
-    auth: YT_KEY
-});
-const client = new Discord.Client();
 client.login(TOKEN);
+
+const used = process.memoryUsage();
+for (let key in used) {
+  console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+}
 
 //Function to pull video data from YouTube
 async function getResponse(query){
