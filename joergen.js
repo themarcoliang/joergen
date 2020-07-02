@@ -64,7 +64,44 @@ server.on('message', async (cmd, rinfo) => {
             console.log('Stopping');
             stopVideo();
             break;
-
+        
+        case "play":
+            query = command.argument;
+            console.log(command.argument);
+            if(queue.length == 0) //empty queue
+            {
+                let response = await getResponse(query);
+                queue.push(response);
+                playVideo(response);
+                if(latestMessage != null){
+                    latestMessage.channel.send("Siri just told me to play **" + response.data.items[0].snippet.title + "**");
+                }
+                else{
+                    client.channels.fetch('527041342212407296').then((channel)=>{
+                        channel.send("Siri just told me to play **" + response.data.items[0].snippet.title + "**");
+                    }).catch((error)=>{
+                        console.error("Failed to get channel ", error);
+                        return;
+                    })
+                }
+            }
+            else { //non-empty queue
+                let response = await getResponse(query);
+                queue.push(response);
+                console.log("Queuing song, queue length: " + queue.length);
+                if(latestMessage != null){
+                    latestMessage.channel.send("Queuing " + response.data.items[0].snippet.title + " for later because Siri told me to");
+                }
+                else{
+                    client.channels.fetch('527041342212407296').then((channel)=>{
+                        channel.send("Queuing " + response.data.items[0].snippet.title + " for later because Siri told me to");
+                    }).catch((error)=>{
+                        console.error("Failed to get channel ", error);
+                        return;
+                    })
+                }
+            }
+            break;
         default: 
             console.log("Unknown Command from iOS!")
             break;
@@ -92,9 +129,20 @@ async function getResponse(query){
 }
 
 //Function to stream a video, based on response from YouTube API
-function playVideo(response){
+async function playVideo(response){
     try{
-        channel = latestMessage.member.voice.channel;
+        if(latestMessage == null)
+        {
+            channel = await client.channels.fetch('287885534800510977').catch((error)=>{
+                console.error("Cannot find channel", error);
+                return;
+            });
+        }
+        else
+        {
+            channel = latestMessage.member.voice.channel;
+        }
+        
         var id = response.data.items[0].id.videoId;
         var islive = response.data.items[0].snippet.liveBroadcastContent === 'live'; //check if requested video is a livestream, which uses a different ptag
         var videoTitle = response.data.items[0].snippet.title;
@@ -113,7 +161,18 @@ function playVideo(response){
             return;
         }
         console.log("Playing " + videoTitle);
-        latestMessage.channel.send("Ok, I'll play " + videoTitle);
+        if(latestMessage!=null){
+            latestMessage.channel.send("Ok, I'll play " + videoTitle);
+        }
+        else
+        {
+            client.channels.fetch('527041342212407296').then((channel)=>{
+                channel.send("Ok Siri, I'll play " + videoTitle);
+            }).catch((error)=>{
+                console.error("Failed to get Channel: ", error);
+                return;
+            })
+        }
         
         //eventlistener that checks for dispatcher's finish event
         dispatcher.on('finish', ()=>{
@@ -177,18 +236,18 @@ function verifyChannel(){
 }
 
 //Joergen is ready
-client.on('ready', ()=> {
+client.on('ready', async ()=> {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
 //Message received
 client.on('message', async function (msg) {
-    latestMessage = msg;
-    const message = latestMessage.content.toLowerCase();
-    const split_message = message.split(' ');
     // console.log("message received");
-    if(!latestMessage.author.bot) //only care if not from bot
+    if(!msg.author.bot) //only care if not from bot
     {
+        latestMessage = msg;
+        const message = latestMessage.content.toLowerCase();
+        const split_message = message.split(' ');
         const arg = split_message.slice(0,1).join(' '); //get arguments for joergen
         //console.log(arg);
         if(arg === '!play')
