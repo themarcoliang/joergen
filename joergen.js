@@ -74,11 +74,11 @@ server.on('message', async (cmd, rinfo) => {
                 queue.push(response);
                 playVideo(response);
                 if(latestMessage != null){
-                    latestMessage.channel.send("Siri just told me to play **" + response.data.items[0].snippet.title + "**");
+                    // latestMessage.channel.send("Siri just told me to play **" + response.data.items[0].snippet.title + "**");
                 }
                 else{
                     client.channels.fetch('527041342212407296').then((channel)=>{
-                        channel.send("Siri just told me to play **" + response.data.items[0].snippet.title + "**");
+                        // channel.send("Siri just told me to play **" + response.data.items[0].snippet.title + "**");
                     }).catch((error)=>{
                         console.error("Failed to get channel ", error);
                         return;
@@ -145,7 +145,7 @@ async function playVideo(response){
         
         var id = response.data.items[0].id.videoId;
         var islive = response.data.items[0].snippet.liveBroadcastContent === 'live'; //check if requested video is a livestream, which uses a different ptag
-        var videoTitle = response.data.items[0].snippet.title;
+        var videoTitle = "**" + response.data.items[0].snippet.title + "**";
     }
     catch(error){
         console.error("Unexpected Response",error);
@@ -201,7 +201,10 @@ function pauseVideo(){
     if(dispatcher!=null)
     {
         dispatcher.pause();
-        latestMessage.channel.send("K I'm pausing");
+        if(latestMessage!=null)
+        {
+                latestMessage.channel.send("K I'm pausing");
+        }
         console.log('Pausing playback');
     }
     else if(latestMessage!=null){
@@ -219,7 +222,10 @@ function stopVideo(){
         if(queue.length == 0)
         {
             console.log("Bot disconnecting");
-            latestMessage.channel.send("K bye");
+            if(latestMessage!=null)
+            {
+                latestMessage.channel.send("K bye");
+            }
             channel.leave();
         }
     }
