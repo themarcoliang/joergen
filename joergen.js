@@ -2,7 +2,8 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
 const {google} = require('googleapis');
-const Server = require('./server');
+const dgram = require('dgram');
+const server = dgram.createSocket('udp4');
 
 const keys = JSON.parse(fs.readFileSync('./keys.json'));
 const TOKEN = keys.discord_token;
@@ -19,13 +20,61 @@ var channel = null;
 var latestMessage = null;
 var queue = [];
 
-Server.server.bind(420);
+server.bind(420);
 client.login(TOKEN);
 
-const used = process.memoryUsage();
-for (let key in used) {
-  console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
-}
+server.on('error', (err) => {
+    console.log(`server error:\n${err.stack}`);
+    server.close();
+});
+
+server.on('message', async (cmd, rinfo) => {
+    console.log(`server got a command from ${rinfo.address}:${rinfo.port}`);
+    var command = JSON.parse(cmd)
+    console.log(command.identifier)
+    switch (command.identifier){
+        case 'unpause':
+            if(dispatcher != null && dispatcher.paused)
+            {
+                dispatcher.resume();
+                console.log('Resuming (iOS)');
+                if(latestMessage != null){
+                    latestMessage.channel.send('Resuming cuz Siri told me to');
+                }
+            }
+            break;
+
+        case "pause":
+            pauseVideo();
+            break;
+
+        case "skip":
+            if(dispatcher != null && !dispatcher.paused)
+            {
+                console.log('Skipping');
+                if(latestMessage != null){
+                    latestMessage.channel.send('Skipping cuz Siri told me to');
+                }
+                stopVideo();
+            }
+            break;
+
+        case "stop":
+            queue = []; //clear queue
+            console.log('Stopping');
+            stopVideo();
+            break;
+
+        default: 
+            console.log("Unknown Command from iOS!")
+            break;
+    }
+});
+
+server.on('listening', () => {
+    const address = server.address();
+    console.log(`server listening ${address.address}:${address.port}`);
+});
 
 //Function to pull video data from YouTube
 async function getResponse(query){
@@ -96,7 +145,7 @@ function pauseVideo(){
         latestMessage.channel.send("K I'm pausing");
         console.log('Pausing playback');
     }
-    else{
+    else if(latestMessage!=null){
         latestMessage.reply("nothing's playing dude");
     }
 }
@@ -206,4 +255,3 @@ client.on('message', async function (msg) {
         }
     }
 });
-
