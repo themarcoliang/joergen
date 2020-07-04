@@ -2,8 +2,34 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
 const {google} = require('googleapis');
-const dgram = require('dgram');
-const server = dgram.createSocket('udp4');
+// const dgram = require('dgram');
+// const server = dgram.createSocket('udp4');
+
+const port = 690;
+const websocketserver = require('websocket').server;
+const http = require('http');
+const socket = http.createServer();
+socket.listen(port);
+const wsServer = new websocketserver({
+    httpServer: socket
+});
+
+
+wsServer.on('request', (request) => {
+    console.log("New Connection from " + request.remoteAddress);
+    const connection = request.accept(null, request.origin);
+    connection.on('message', function(message){
+        if (message.type === 'utf8') {
+            const dataFromClient = JSON.parse(message.utf8Data);
+            console.log(dataFromClient.identifier);
+            iOS_request(dataFromClient);
+        }
+    })
+    connection.on('close', () => {
+        console.log("connection closed by client");
+    })
+
+})
 
 const keys = JSON.parse(fs.readFileSync('./keys.json'));
 const TOKEN = keys.discord_token;
@@ -20,18 +46,27 @@ var channel = null;
 var latestMessage = null;
 var queue = [];
 
-server.bind(420);
+// server.bind(420);
 client.login(TOKEN);
 
-server.on('error', (err) => {
-    console.log(`server error:\n${err.stack}`);
-    server.close();
-});
+// server.on('error', (err) => {
+//     console.log(`server error:\n${err.stack}`);
+//     server.close();
+// });
 
-server.on('message', async (cmd, rinfo) => {
-    console.log(`server got a command from ${rinfo.address}:${rinfo.port}`);
-    var command = JSON.parse(cmd)
-    console.log(command.identifier)
+// server.on('message', async (cmd, rinfo) => {
+//     console.log(`server got a command from ${rinfo.address}:${rinfo.port}`);
+//     var command = JSON.parse(cmd)
+//     console.log(command.identifier)
+    
+// });
+
+// server.on('listening', () => {
+//     const address = server.address();
+//     console.log(`server listening ${address.address}:${address.port}`);
+// });
+
+async function iOS_request(command){
     switch (command.identifier){
         case 'unpause':
             if(dispatcher != null && dispatcher.paused)
@@ -106,12 +141,8 @@ server.on('message', async (cmd, rinfo) => {
             console.log("Unknown Command from iOS!")
             break;
     }
-});
+}
 
-server.on('listening', () => {
-    const address = server.address();
-    console.log(`server listening ${address.address}:${address.port}`);
-});
 
 //Function to pull video data from YouTube
 async function getResponse(query){

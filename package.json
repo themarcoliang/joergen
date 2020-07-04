@@ -9,6 +9,7 @@
     "google-auth-library": "^6.0.2",
     "googleapis": "^49.0.0",
     "opusscript": "0.0.7",
+    "websocket": "^1.0.31",
     "ytdl-core": "^2.1.7"
   },
   "devDependencies": {},
