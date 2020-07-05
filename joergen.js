@@ -18,6 +18,15 @@ const wsServer = new websocketserver({
 wsServer.on('request', (request) => {
     console.log("New Connection from " + request.remoteAddress);
     const connection = request.accept(null, request.origin);
+    clients.push(connection);
+    // console.log(clients)
+    if(playing){
+        connection.sendUTF(videoTitle);
+    }
+    else {
+        connection.sendUTF("Joergen is off");
+    }
+
     connection.on('message', function(message){
         if (message.type === 'utf8') {
             const dataFromClient = JSON.parse(message.utf8Data);
@@ -27,9 +36,17 @@ wsServer.on('request', (request) => {
     })
     connection.on('close', () => {
         console.log("connection closed by client");
+        let clientIndex = clients.indexOf(connection);
+        // console.log(connection)
+        if(clientIndex != -1)
+        {
+            clients.splice(clientIndex, 1);
+        }
+        // console.log(clients)
     })
 
 })
+
 
 const keys = JSON.parse(fs.readFileSync('./keys.json'));
 const TOKEN = keys.discord_token;
@@ -45,7 +62,9 @@ var dispatcher = null;
 var channel = null;
 var latestMessage = null;
 var queue = [];
-
+var clients = [];
+var playing = false;
+var videoTitle = "";
 // server.bind(420);
 client.login(TOKEN);
 
@@ -66,12 +85,24 @@ client.login(TOKEN);
 //     console.log(`server listening ${address.address}:${address.port}`);
 // });
 
+function sendToClient(message) {
+    // Object.keys(clients).map((i) => {
+    //     clients[i].sendUTF(message);
+    // });
+    clients.forEach((client) => {
+        client.sendUTF(message);
+        console.log("Send message");
+    });
+}
+
 async function iOS_request(command){
     switch (command.identifier){
         case 'unpause':
             if(dispatcher != null && dispatcher.paused)
             {
+                playing = true;
                 dispatcher.resume();
+                sendToClient(videoTitle);
                 console.log('Resuming (iOS)');
                 if(latestMessage != null){
                     latestMessage.channel.send('Resuming cuz Siri told me to');
@@ -176,7 +207,8 @@ async function playVideo(response){
         
         var id = response.data.items[0].id.videoId;
         var islive = response.data.items[0].snippet.liveBroadcastContent === 'live'; //check if requested video is a livestream, which uses a different ptag
-        var videoTitle = "**" + response.data.items[0].snippet.title + "**";
+        videoTitle = response.data.items[0].snippet.title;
+        sendToClient(String(videoTitle));
     }
     catch(error){
         console.error("Unexpected Response",error);
@@ -192,13 +224,14 @@ async function playVideo(response){
             return;
         }
         console.log("Playing " + videoTitle);
+        playing = true;
         if(latestMessage!=null){
-            latestMessage.channel.send("Ok, I'll play " + videoTitle);
+            latestMessage.channel.send("Ok, I'll play **" + videoTitle + "**");
         }
         else
         {
             client.channels.fetch('527041342212407296').then((channel)=>{
-                channel.send("Ok Siri, I'll play " + videoTitle);
+                channel.send("Ok Siri, I'll play **" + videoTitle + "**");
             }).catch((error)=>{
                 console.error("Failed to get Channel: ", error);
                 return;
@@ -211,6 +244,7 @@ async function playVideo(response){
             console.log('Queue Length: ' + queue.length);
             if(queue.length == 0) //queue is empty
             {
+                sendToClient("Joergen is off");
                 console.log('Finished playing');
                 channel.leave();
             }
@@ -231,10 +265,12 @@ async function playVideo(response){
 function pauseVideo(){
     if(dispatcher!=null)
     {
+        playing = false;
         dispatcher.pause();
+        sendToClient("Joergen is off");
         if(latestMessage!=null)
         {
-                latestMessage.channel.send("K I'm pausing");
+            latestMessage.channel.send("K I'm pausing");
         }
         console.log('Pausing playback');
     }
@@ -253,6 +289,7 @@ function stopVideo(){
         if(queue.length == 0)
         {
             console.log("Bot disconnecting");
+            playing = false;
             if(latestMessage!=null)
             {
                 latestMessage.channel.send("K bye");
@@ -301,6 +338,8 @@ client.on('message', async function (msg) {
                 }
                 else //player's paused
                 {
+                    sendToClient(videoTitle)
+                    playing = true;
                     dispatcher.resume();
                     console.log('Resuming');
                     latestMessage.channel.send('K, resuming');
