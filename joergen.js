@@ -24,7 +24,7 @@ wsServer.on('request', (request) => {
         connection.sendUTF(videoTitle);
     }
     else {
-        connection.sendUTF("Joergen is off");
+        connection.sendUTF("OFF");
     }
 
     connection.on('message', function(message){
@@ -91,7 +91,7 @@ function sendToClient(message) {
     // });
     clients.forEach((client) => {
         client.sendUTF(message);
-        console.log("Send message");
+        // console.log("Send message");
     });
 }
 
@@ -244,7 +244,8 @@ async function playVideo(response){
             console.log('Queue Length: ' + queue.length);
             if(queue.length == 0) //queue is empty
             {
-                sendToClient("Joergen is off");
+                playing = false;
+                sendToClient("OFF");
                 console.log('Finished playing');
                 channel.leave();
             }
@@ -267,7 +268,7 @@ function pauseVideo(){
     {
         playing = false;
         dispatcher.pause();
-        sendToClient("Joergen is off");
+        sendToClient("OFF");
         if(latestMessage!=null)
         {
             latestMessage.channel.send("K I'm pausing");
