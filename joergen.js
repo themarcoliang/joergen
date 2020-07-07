@@ -24,7 +24,7 @@ wsServer.on('request', (request) => {
         connection.sendUTF(videoTitle);
     }
     else {
-        connection.sendUTF("OFF");
+        connection.sendUTF("Nothing");
     }
 
     connection.on('message', function(message){
@@ -245,7 +245,7 @@ async function playVideo(response){
             if(queue.length == 0) //queue is empty
             {
                 playing = false;
-                sendToClient("OFF");
+                sendToClient("Nothing");
                 console.log('Finished playing');
                 channel.leave();
             }
