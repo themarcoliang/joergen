@@ -5,7 +5,7 @@ const {google} = require('googleapis');
 // const dgram = require('dgram');
 // const server = dgram.createSocket('udp4');
 
-const port = 690;
+const port = 6900;
 const websocketserver = require('websocket').server;
 const http = require('http');
 const socket = http.createServer();
@@ -156,11 +156,11 @@ async function iOS_request(command){
                 queue.push(response);
                 console.log("Queuing song, queue length: " + queue.length);
                 if(latestMessage != null){
-                    latestMessage.channel.send("Queuing " + response.data.items[0].snippet.title + " for later because Siri told me to");
+                    latestMessage.channel.send("Queuing " + filterTitle(response.data.items[0].snippet.title) + " for later because Siri told me to");
                 }
                 else{
                     client.channels.fetch('527041342212407296').then((channel)=>{
-                        channel.send("Queuing " + response.data.items[0].snippet.title + " for later because Siri told me to");
+                        channel.send("Queuing " + filterTitle(response.data.items[0].snippet.title) + " for later because Siri told me to");
                     }).catch((error)=>{
                         console.error("Failed to get channel ", error);
                         return;
@@ -174,6 +174,11 @@ async function iOS_request(command){
     }
 }
 
+function filterTitle(title){
+    var res = title.replace("&#39;", "'");
+    res = title.replace("&amp;", "&");
+    return res;
+}
 
 //Function to pull video data from YouTube
 async function getResponse(query){
@@ -207,7 +212,7 @@ async function playVideo(response){
         
         var id = response.data.items[0].id.videoId;
         var islive = response.data.items[0].snippet.liveBroadcastContent === 'live'; //check if requested video is a livestream, which uses a different ptag
-        videoTitle = response.data.items[0].snippet.title;
+        videoTitle = filterTitle(response.data.items[0].snippet.title);
         sendToClient(String(videoTitle));
     }
     catch(error){
@@ -358,7 +363,7 @@ client.on('message', async function (msg) {
                 let response = await getResponse(query);
                 queue.push(response);
                 console.log("Queuing song, queue length: " + queue.length);
-                latestMessage.channel.send("Something's playing already, I'll queue " + response.data.items[0].snippet.title + " for later");
+                latestMessage.channel.send("Something's playing already, I'll queue " + filterTitle(response.data.items[0].snippet.title) + " for later");
             }
         }
         else if(arg == '!pause')
