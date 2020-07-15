@@ -5,7 +5,7 @@ const {google} = require('googleapis');
 // const dgram = require('dgram');
 // const server = dgram.createSocket('udp4');
 
-const port = 6900;
+const port = 690;
 const websocketserver = require('websocket').server;
 const http = require('http');
 const socket = http.createServer();
@@ -175,8 +175,9 @@ async function iOS_request(command){
 }
 
 function filterTitle(title){
-    var res = title.replace("&#39;", "'");
-    res = title.replace("&amp;", "&");
+    var res = title.replace(/&#39;/gi, "'");
+    res = res.replace(/&amp;/gi, "&");
+	res = res.replace(/&quot;/gi, "\"");
     return res;
 }
 
