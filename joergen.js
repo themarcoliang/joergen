@@ -88,6 +88,8 @@ discord_client.on('message', async (msg) => {
             break;
         case("!stop"):
             text_channel = msg.channel;
+            text_channel.send("Ok, goodbye");
+            console.log("Stopping")
             helpers.StopSong(text_channel, dispatcher);
             break;
         case("!skip"):
