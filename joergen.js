@@ -40,9 +40,14 @@ discord_client.on('message', async (msg) => {
     const split_message = msg.content.toLowerCase().split(' ');
     switch(split_message.slice(0,1).join(' ')){
         case("!play"):
+            if(msg.member.voice.channel)
+            {
+                audio_channel = msg.member.voice.channel;
+            }
+            text_channel = msg.channel;
             if(dispatcher!=null && dispatcher.paused)
             {
-                sendToClient(songTitle);
+                helpers.sendToClient(songTitle);
                 playing = true;
                 dispatcher.resume();
                 console.log("Unpausing");
@@ -62,7 +67,7 @@ discord_client.on('message', async (msg) => {
 
             if(queue.length == 1) //only song in queue
             {
-                result = helpers.PlaySong(audio_channel, text_channel, response);
+                result = await helpers.PlaySong(queue, audio_channel, text_channel, response);
                 if(result == -1){
                     return;
                 }
@@ -76,15 +81,23 @@ discord_client.on('message', async (msg) => {
                 console.log("Queuing " + helpers.FilterTitle(response.data.items[0].snippet.title) + ", queue length: " + queue.length);
                 text_channel.send("Queued " + helpers.FilterTitle(response.data.items[0].snippet.title) + " for later");
             }
-
             break;
         case("!pause"):
+            text_channel = msg.channel;
+            helpers.PauseSong(text_channel, dispatcher);
             break;
         case("!stop"):
+            text_channel = msg.channel;
+            helpers.StopSong(text_channel, dispatcher);
             break;
         case("!skip"):
+            text_channel = msg.channel;
+            helpers.SkipSong(text_channel, dispatcher);
             break;
         default:
             break;
     }
 });
+
+
+
