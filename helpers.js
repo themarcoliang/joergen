@@ -1,7 +1,9 @@
 const ytdl = require('ytdl-core');
 
-function sendToClient(text){
-    console.log("Text to send: " + text);
+function SendToClient(clients, message) {
+    clients.forEach((client) => {
+        client.sendUTF(message);
+    });
 }
 
 function PlaySong(queue, audio_channel, text_channel, response){
@@ -76,7 +78,6 @@ function StopSong(text_channel, dispatcher){
 }
 
 function SkipSong(text_channel, dispatcher){
-    console.log(dispatcher);
     if(dispatcher!=null && !dispatcher.paused)
     {
         StopSong(text_channel, dispatcher);
@@ -97,5 +98,5 @@ function FilterTitle(title){
 }
 
 module.exports = {
-    PlaySong, PauseSong, StopSong, SkipSong, FilterTitle, sendToClient
+    SendToClient, PlaySong, PauseSong, StopSong, SkipSong, FilterTitle
 };
