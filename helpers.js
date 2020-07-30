@@ -32,23 +32,6 @@ function PlaySong(queue, audio_channel, text_channel, response){
             console.log("Now Playing: " + videoTitle);
             text_channel.send("Ok, I'll play **" + videoTitle + "**");
 
-            dispatcher.on('finish', ()=>{
-                queue.shift(); //pops first item off
-                console.log('Queue Length: ' + queue.length);
-                if(queue.length == 0) //queue is empty
-                {
-                    playing = false;
-                    sendToClient("Nothing");
-                    console.log('Finished playing');
-                    audio_channel.leave();
-                }
-                else //more songs to play
-                {
-                    console.log('Next song');
-                    playVideo(queue[0]);
-                }
-            });
-
             return dispatcher;
         }
         catch(error){

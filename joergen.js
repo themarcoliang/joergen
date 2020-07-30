@@ -14,6 +14,7 @@ const discord_client = new Discord.Client();
 discord_client.login(keys.discord_token);
 
 var queue = [];
+var clients = [];
 var playing = false;
 var dispatcher = null;
 var songTitle = "";
@@ -46,19 +47,19 @@ discord_client.on('message', async (msg) => {
                 audio_channel = msg.member.voice.channel;
             }
             text_channel = msg.channel;
-            if(dispatcher!=null && dispatcher.paused)
-            {
-                helpers.SendToClient(clients, songTitle);
-                playing = true;
-                dispatcher.resume();
-                console.log("Unpausing");
-                text_channel.send("Resuming");
-                return;
-            }
 
             const query = split_message.slice(1).join(' ');
             if(query=='') //if no query given
             {
+                if(dispatcher!=null && dispatcher.paused)
+                {
+                    helpers.SendToClient(clients, songTitle);
+                    playing = true;
+                    dispatcher.resume();
+                    console.log("Unpausing");
+                    text_channel.send("Resuming");
+                    return;
+                }
                 msg.reply("you gotta tell me what to play smh");
                 return;
             }
@@ -75,6 +76,22 @@ discord_client.on('message', async (msg) => {
                 else
                 {
                     dispatcher = result;
+                    dispatcher.on('finish', ()=>{
+                        queue.shift(); //pops first item off
+                        console.log('Queue Length: ' + queue.length);
+                        if(queue.length == 0) //queue is empty
+                        {
+                            playing = false;
+                            helpers.SendToClient(clients, "Nothing");
+                            console.log('Finished playing');
+                            audio_channel.leave();
+                        }
+                        else //more songs to play
+                        {
+                            console.log('Playing next song in queue');
+                            helpers.PlaySong(queue, audio_channel, text_channel, queue[0]);
+                        }
+                    });
                 }
             }
             else
@@ -113,15 +130,12 @@ socket.listen(port);
 const wsServer = new websocketserver({
     httpServer: socket
 });
-var clients = [];
 
-
-//Listens for new requests
+//Listens for new requests from iOS
 wsServer.on('request', (request) => {
     console.log("New Connection from " + request.remoteAddress);
     const connection = request.accept(null, request.origin);
     clients.push(connection);
-    // console.log(clients)
     if(playing){
         connection.sendUTF(songTitle);
     }
@@ -153,7 +167,7 @@ async function iOS_request(command){
             {
                 playing = true;
                 dispatcher.resume();
-                sendToClient(songTitle);
+                helpers.SendToClient(clients, songTitle);
                 console.log("Unpausing [iOS]");
                 if(latestMessage != null){
                     latestMessage.channel.send("Received request from Siri");
