@@ -5,7 +5,7 @@ const {google} = require('googleapis');
 // const dgram = require('dgram');
 // const server = dgram.createSocket('udp4');
 
-const port = 690;
+const port = 6900;
 const websocketserver = require('websocket').server;
 const http = require('http');
 const socket = http.createServer();
