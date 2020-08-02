@@ -98,7 +98,7 @@ discord_client.on('message', async (msg) => {
 
 //WebSocket Initialization
 
-const port = 690;
+const port = 6900;
 const websocketserver = require('websocket').server;
 const http = require('http');
 const socket = http.createServer();
