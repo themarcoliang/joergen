@@ -47,7 +47,6 @@ wsServer.on('request', (request) => {
 
 })
 
-
 const keys = JSON.parse(fs.readFileSync('./keys.json'));
 const TOKEN = keys.discord_token;
 const YT_KEY = keys.yt_key;
@@ -65,33 +64,11 @@ var queue = [];
 var clients = [];
 var playing = false;
 var videoTitle = "";
-// server.bind(420);
 client.login(TOKEN);
 
-// server.on('error', (err) => {
-//     console.log(`server error:\n${err.stack}`);
-//     server.close();
-// });
-
-// server.on('message', async (cmd, rinfo) => {
-//     console.log(`server got a command from ${rinfo.address}:${rinfo.port}`);
-//     var command = JSON.parse(cmd)
-//     console.log(command.identifier)
-    
-// });
-
-// server.on('listening', () => {
-//     const address = server.address();
-//     console.log(`server listening ${address.address}:${address.port}`);
-// });
-
 function sendToClient(message) {
-    // Object.keys(clients).map((i) => {
-    //     clients[i].sendUTF(message);
-    // });
     clients.forEach((client) => {
         client.sendUTF(message);
-        // console.log("Send message");
     });
 }
 
@@ -363,8 +340,7 @@ client.on('message', async function (msg) {
             else { //non-empty queue
                 let response = await getResponse(query);
                 queue.push(response);
-                console.log("Queuing song, queue length: " + queue.length);
-                latestMessage.channel.send("Something's playing already, I'll queue " + filterTitle(response.data.items[0].snippet.title) + " for later");
+                
             }
         }
         else if(arg == '!pause')

@@ -13,7 +13,6 @@ const { client } = require("websocket");
 const discord_client = new Discord.Client();
 discord_client.login(keys.discord_token);
 
-var queue = [];
 var clients = [];
 var playing = false;
 var dispatcher = null;
@@ -51,69 +50,46 @@ discord_client.on('message', async (msg) => {
             const query = split_message.slice(1).join(' ');
             if(query=='') //if no query given
             {
-                if(dispatcher!=null && dispatcher.paused)
-                {
+                if(helpers.UnpauseSong(text_channel)){ //unpaused
                     helpers.SendToClient(clients, songTitle);
                     playing = true;
-                    dispatcher.resume();
-                    console.log("Unpausing");
-                    text_channel.send("Resuming");
-                    return;
                 }
-                msg.reply("you gotta tell me what to play smh");
-                return;
+                else{
+                    msg.reply("what do you want me to play bitch??");
+                }
             }
-            
-            let response = await yt.QueryYoutube(query);
-            queue.push(response);
-
-            if(queue.length == 1) //only song in queue
+            else //query for new song
             {
-                result = await helpers.PlaySong(queue, audio_channel, text_channel, response);
-                if(result == -1){
-                    return;
-                }
-                else
+                let response = await yt.QueryYoutube(query);
+                helpers.QueueAdd(response);
+                newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
+                if(helpers.QueueLength() == 1) //only song in queue
                 {
-                    dispatcher = result;
-                    dispatcher.on('finish', ()=>{
-                        queue.shift(); //pops first item off
-                        console.log('Queue Length: ' + queue.length);
-                        if(queue.length == 0) //queue is empty
-                        {
-                            playing = false;
-                            helpers.SendToClient(clients, "Nothing");
-                            console.log('Finished playing');
-                            audio_channel.leave();
-                        }
-                        else //more songs to play
-                        {
-                            console.log('Playing next song in queue');
-                            helpers.PlaySong(queue, audio_channel, text_channel, queue[0]);
-                        }
-                    });
+                    songTitle = newSongTitle
+                    helpers.PlaySong(clients, text_channel, audio_channel, response);
                 }
-            }
-            else
-            {
-                console.log("Queuing " + helpers.FilterTitle(response.data.items[0].snippet.title) + ", queue length: " + queue.length);
-                text_channel.send("Queued " + helpers.FilterTitle(response.data.items[0].snippet.title) + " for later");
+                else //something else playing
+                {
+                    console.log("Queuing " + newSongTitle + ", queue length: " + helpers.QueueLength());
+                    text_channel.send("Queued " + newSongTitle + " for later");
+                }
             }
             break;
         case("!pause"):
             text_channel = msg.channel;
-            helpers.PauseSong(text_channel, dispatcher);
+            playing = false;
+            helpers.PauseSong(text_channel);
             break;
         case("!stop"):
             text_channel = msg.channel;
-            text_channel.send("Ok, goodbye");
-            console.log("Stopping")
-            queue = [];
-            helpers.StopSong(text_channel, dispatcher);
+            playing = false;
+            helpers.QueueClear();
+            console.log("Stopping");
+            helpers.StopSong(text_channel, audio_channel);
             break;
         case("!skip"):
             text_channel = msg.channel;
-            helpers.SkipSong(text_channel, dispatcher);
+            helpers.SkipSong(text_channel, audio_channel);
             break;
         default:
             break;
@@ -147,6 +123,7 @@ wsServer.on('request', (request) => {
         if (message.type === 'utf8') {
             const dataFromClient = JSON.parse(message.utf8Data);
             console.log("Received Command: " + dataFromClient.identifier);
+            text_channel.send("Received a new command from Siri!");
             iOS_request(dataFromClient);
         }
     })
@@ -163,67 +140,42 @@ wsServer.on('request', (request) => {
 async function iOS_request(command){
     switch (command.identifier){
         case 'unpause':
-            if(dispatcher != null && dispatcher.paused)
-            {
-                playing = true;
-                dispatcher.resume();
+            if(helpers.UnpauseSong(text_channel)){
                 helpers.SendToClient(clients, songTitle);
-                console.log("Unpausing [iOS]");
-                if(latestMessage != null){
-                    latestMessage.channel.send("Received request from Siri");
-                }
+                playing = true;
             }
             break;
 
         case "pause":
-            if(dispatcher != null){
-                helpers.PauseSong(text_channel, dispatcher);
-                console.log("Pausing [iOS]");
-                text_channel.send("Received request from Siri");
-            }
+            playing = false;
+            helpers.PauseSong(text_channel);
             break;
 
         case "skip":
-            if(dispatcher != null && !dispatcher.paused)
-            {
-                helpers.SkipSong(text_channel, dispatcher);
-                console.log("Skipping [iOS]");
-                text_channel.send("Received request from Siri");
-            }
+            helpers.SkipSong(text_channel, audio_channel);
             break;
 
         case "stop":
-            if(dispatcher != null)
-            {
-                queue = []; //clear queue
-                helpers.StopSong(text_channel, dispatcher);
-                console.log("Stopping [iOS]");
-                text_channel.send("Received request from Siri");
-            }
+            playing = false;
+            helpers.QueueClear();
+            console.log("Stopping");
+            helpers.StopSong(text_channel, audio_channel);
             break;
         
         case "play":
             query = command.argument;
-            console.log("Playing [iOS]");
-            
             let response = await yt.QueryYoutube(query);
-            queue.push(response);
-
-            if(queue.length == 1) //only song in queue
+            helpers.QueueAdd(response);
+            newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
+            if(helpers.QueueLength() == 1) //only song in queue
             {
-                result = await helpers.PlaySong(queue, audio_channel, text_channel, response);
-                if(result == -1){
-                    return;
-                }
-                else
-                {
-                    dispatcher = result;
-                }
+                songTitle = newSongTitle
+                helpers.PlaySong(clients, text_channel, audio_channel, response);
             }
-            else
+            else //something else playing
             {
-                console.log("Queuing " + helpers.FilterTitle(response.data.items[0].snippet.title) + ", queue length: " + queue.length);
-                text_channel.send("Queued " + helpers.FilterTitle(response.data.items[0].snippet.title) + " for later");
+                console.log("Queuing " + newSongTitle + ", queue length: " + helpers.QueueLength());
+                text_channel.send("Queued " + newSongTitle + " for later");
             }
             break;
         default: 
