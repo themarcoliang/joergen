@@ -14,8 +14,6 @@ const discord_client = new Discord.Client();
 discord_client.login(keys.discord_token);
 
 var clients = [];
-var playing = false;
-var dispatcher = null;
 var songTitle = "";
 var audio_channel = null;
 var text_channel = null;
@@ -52,7 +50,7 @@ discord_client.on('message', async (msg) => {
             {
                 if(helpers.UnpauseSong(text_channel)){ //unpaused
                     helpers.SendToClient(clients, songTitle);
-                    playing = true;
+                    helpers.PlayingTrue();
                 }
                 else{
                     msg.reply("what do you want me to play bitch??");
@@ -65,7 +63,7 @@ discord_client.on('message', async (msg) => {
                 newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
                 if(helpers.QueueLength() == 1) //only song in queue
                 {
-                    playing = true;
+                    helpers.PlayingTrue();
                     songTitle = newSongTitle
                     helpers.PlaySong(clients, text_channel, audio_channel, response);
                     helpers.SendToClient(clients, songTitle);
@@ -79,13 +77,13 @@ discord_client.on('message', async (msg) => {
             break;
         case("!pause"):
             text_channel = msg.channel;
-            playing = false;
+            helpers.PlayingFalse();
             helpers.PauseSong(text_channel);
             helpers.SendToClient(clients, "Paused");
             break;
         case("!stop"):
             text_channel = msg.channel;
-            playing = false;
+            helpers.PlayingFalse();
             helpers.QueueClear();
             console.log("Stopping");
             helpers.StopSong(text_channel, audio_channel);
@@ -115,7 +113,7 @@ wsServer.on('request', (request) => {
     console.log("New Connection from " + request.remoteAddress);
     const connection = request.accept(null, request.origin);
     clients.push(connection);
-    if(playing){
+    if(helpers.Playing()){
         connection.sendUTF(songTitle);
     }
     else {
@@ -145,12 +143,12 @@ async function iOS_request(command){
         case 'unpause':
             if(helpers.UnpauseSong(text_channel)){
                 helpers.SendToClient(clients, songTitle);
-                playing = true;
+                helpers.PlayingTrue();
             }
             break;
 
         case "pause":
-            playing = false;
+            helpers.PlayingFalse();
             helpers.PauseSong(text_channel);
             helpers.SendToClient(clients, "Paused");
             break;
@@ -160,7 +158,7 @@ async function iOS_request(command){
             break;
 
         case "stop":
-            playing = false;
+            helpers.PlayingFalse();
             helpers.QueueClear();
             console.log("Stopping");
             helpers.StopSong(text_channel, audio_channel);
@@ -173,7 +171,7 @@ async function iOS_request(command){
             newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
             if(helpers.QueueLength() == 1) //only song in queue
             {
-                playing = true;
+                helpers.PlayingTrue();
                 songTitle = newSongTitle;
                 helpers.PlaySong(clients, text_channel, audio_channel, response);
             }
@@ -188,10 +186,3 @@ async function iOS_request(command){
             break;
     }
 }
-
-function StopPlaying()
-{
-    playing = false;
-}
-
-module.exports = StopPlaying;
