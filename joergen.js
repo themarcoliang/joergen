@@ -65,6 +65,7 @@ discord_client.on('message', async (msg) => {
                 newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
                 if(helpers.QueueLength() == 1) //only song in queue
                 {
+                    playing = true;
                     songTitle = newSongTitle
                     helpers.PlaySong(clients, text_channel, audio_channel, response);
                 }
@@ -169,7 +170,8 @@ async function iOS_request(command){
             newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
             if(helpers.QueueLength() == 1) //only song in queue
             {
-                songTitle = newSongTitle
+                playing = true;
+                songTitle = newSongTitle;
                 helpers.PlaySong(clients, text_channel, audio_channel, response);
             }
             else //something else playing
