@@ -1,5 +1,5 @@
 const ytdl = require('ytdl-core');
-
+const joergen = require('./joergen.js')
 var dispatcher = null;
 var queue = [];
 
@@ -32,7 +32,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
             console.log('Queue Length: ' + queue.length);
             if(queue.length == 0) //queue is empty
             {
-                playing = false;
+                joergen.StopPlaying();
                 SendToClient(clients, "Nothing");
                 console.log('Finished playing');
                 text_channel.send("Finished playing");
@@ -41,6 +41,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
             else //more songs to play
             {
                 console.log('Next song');
+                helpers.SendToClient(clients, FilterTitle(queue[0].data.items[0].snippet.title));
                 PlaySong(clients, text_channel, audio_channel, queue[0]);
             }
         });

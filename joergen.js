@@ -68,6 +68,7 @@ discord_client.on('message', async (msg) => {
                     playing = true;
                     songTitle = newSongTitle
                     helpers.PlaySong(clients, text_channel, audio_channel, response);
+                    helpers.SendToClient(clients, songTitle);
                 }
                 else //something else playing
                 {
@@ -187,3 +188,10 @@ async function iOS_request(command){
             break;
     }
 }
+
+function StopPlaying()
+{
+    playing = false;
+}
+
+module.exports = StopPlaying;
