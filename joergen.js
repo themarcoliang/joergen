@@ -80,6 +80,7 @@ discord_client.on('message', async (msg) => {
             text_channel = msg.channel;
             playing = false;
             helpers.PauseSong(text_channel);
+            helpers.SendToClient(clients, "Paused");
             break;
         case("!stop"):
             text_channel = msg.channel;
@@ -150,6 +151,7 @@ async function iOS_request(command){
         case "pause":
             playing = false;
             helpers.PauseSong(text_channel);
+            helpers.SendToClient(clients, "Paused");
             break;
 
         case "skip":
