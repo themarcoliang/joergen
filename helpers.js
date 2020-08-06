@@ -41,7 +41,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
             else //more songs to play
             {
                 console.log('Next song');
-                helpers.SendToClient(clients, FilterTitle(queue[0].data.items[0].snippet.title));
+                SendToClient(clients, FilterTitle(queue[0].data.items[0].snippet.title));
                 PlaySong(clients, text_channel, audio_channel, queue[0]);
             }
         });
