@@ -135,10 +135,10 @@ wsServer.on('request', (request) => {
     const connection = request.accept(null, request.origin);
     clients.push(connection);
     if(helpers.Playing()){
-        connection.sendUTF(helpers.GetSongTitle());
+        helpers.SendToClient(clients, helpers.GetSongTitle());
     }
     else {
-        connection.sendUTF("Nothing");
+        helpers.SendToClient(clients, "Nothing");
     }
 
     connection.on('message', function(message){
@@ -195,7 +195,7 @@ async function iOS_request(command){
                 helpers.PlayingTrue();
                 helpers.SetSongTitle(newSongTitle);
                 helpers.PlaySong(clients, text_channel, audio_channel, response);
-                helpers.SendUTF(clients, helpers.GetSongTitle());
+                helpers.SendToClient(clients, helpers.GetSongTitle());
             }
             else //something else playing
             {
