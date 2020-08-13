@@ -3,6 +3,7 @@ var dispatcher = null;
 var queue = [];
 var playing = false;
 var songTitle = "";
+var lastSong = null;
 
 function SendToClient(clients, message) {
     clients.forEach((client) => {
@@ -20,6 +21,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
         console.error("Error in reading response", error);
         return -1;
     }
+    lastSong = response;
     audio_channel.join().then(async(connection) => {
         stream = ytdl('https://www.youtube.com/watch?v=' + id, 
         islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly'});
@@ -140,7 +142,11 @@ function GetSongTitle(){
     return songTitle;
 }
 
+function GetLastSong(){
+    return lastSong;
+}
+
 module.exports = {
     SendToClient, PlaySong, PauseSong, UnpauseSong, StopSong, SkipSong, FilterTitle, QueueAdd, QueueLength, QueueClear,
-    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle
+    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong
 };
