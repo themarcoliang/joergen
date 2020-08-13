@@ -14,7 +14,6 @@ const discord_client = new Discord.Client();
 discord_client.login(keys.discord_token);
 
 var clients = [];
-var songTitle = "";
 var audio_channel = null;
 var text_channel = null;
 
@@ -49,7 +48,7 @@ discord_client.on('message', async (msg) => {
             if(query=='') //if no query given
             {
                 if(helpers.UnpauseSong(text_channel)){ //unpaused
-                    helpers.SendToClient(clients, songTitle);
+                    helpers.SendToClient(clients, helpers.GetSongTitle());
                     helpers.PlayingTrue();
                 }
                 else{
@@ -64,9 +63,9 @@ discord_client.on('message', async (msg) => {
                 if(helpers.QueueLength() == 1) //only song in queue
                 {
                     helpers.PlayingTrue();
-                    songTitle = newSongTitle
+                    helpers.SetSongTitle(newSongTitle);
                     helpers.PlaySong(clients, text_channel, audio_channel, response);
-                    helpers.SendToClient(clients, songTitle);
+                    helpers.SendToClient(clients, helpers.GetSongTitle());
                 }
                 else //something else playing
                 {
@@ -114,7 +113,7 @@ wsServer.on('request', (request) => {
     const connection = request.accept(null, request.origin);
     clients.push(connection);
     if(helpers.Playing()){
-        connection.sendUTF(songTitle);
+        connection.sendUTF(helpers.GetSongTitle());
     }
     else {
         connection.sendUTF("Nothing");
@@ -142,7 +141,7 @@ async function iOS_request(command){
     switch (command.identifier){
         case 'unpause':
             if(helpers.UnpauseSong(text_channel)){
-                helpers.SendToClient(clients, songTitle);
+                helpers.SendToClient(clients, helpers.GetSongTitle());
                 helpers.PlayingTrue();
             }
             break;
@@ -172,8 +171,9 @@ async function iOS_request(command){
             if(helpers.QueueLength() == 1) //only song in queue
             {
                 helpers.PlayingTrue();
-                songTitle = newSongTitle;
+                helpers.SetSongTitle(newSongTitle);
                 helpers.PlaySong(clients, text_channel, audio_channel, response);
+                helpers.SendUTF(clients, helpers.GetSongTitle());
             }
             else //something else playing
             {

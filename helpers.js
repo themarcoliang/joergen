@@ -2,6 +2,7 @@ const ytdl = require('ytdl-core');
 var dispatcher = null;
 var queue = [];
 var playing = false;
+var songTitle = "";
 
 function SendToClient(clients, message) {
     clients.forEach((client) => {
@@ -131,7 +132,15 @@ function Playing(){
     return playing;
 }
 
+function SetSongTitle(newTitle){
+    songTitle = newTitle;
+}
+
+function GetSongTitle(){
+    return songTitle;
+}
+
 module.exports = {
     SendToClient, PlaySong, PauseSong, UnpauseSong, StopSong, SkipSong, FilterTitle, QueueAdd, QueueLength, QueueClear,
-    PlayingTrue, PlayingFalse, Playing
+    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle
 };
