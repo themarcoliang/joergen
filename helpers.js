@@ -103,6 +103,15 @@ function SkipSong(text_channel, audio_channel){
     }
 }
 
+function ShowQueue(text_channel){
+    console.log("Printing Queue");
+    text_channel.send("The Current Queue is: ");
+    for(var i = 0; i < queue.length; i++)
+    {
+        text_channel.send(i + ": " + FilterTitle(queue[i].data.items[0].snippet.title));
+    }
+}
+
 function FilterTitle(title){
     var res = title.replace(/&#39;/gi, "'");
     res = res.replace(/&amp;/gi, "&");
@@ -148,5 +157,5 @@ function GetLastSong(){
 
 module.exports = {
     SendToClient, PlaySong, PauseSong, UnpauseSong, StopSong, SkipSong, FilterTitle, QueueAdd, QueueLength, QueueClear,
-    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong
+    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong, ShowQueue
 };

@@ -113,6 +113,10 @@ discord_client.on('message', async (msg) => {
                 }
             }
             break;
+        case("!queue"):
+            text_channel = msg.channel;
+            helpers.ShowQueue(text_channel);
+            break;
         default:
             break;
     }
