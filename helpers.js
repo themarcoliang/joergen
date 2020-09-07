@@ -119,7 +119,7 @@ function RemoveSong(text_channel, audio_channel, num){
         return;
     }
     console.log("Removing item " + num + " from queue");
-    text_channel.send("Removing " + FilterTitle(queue[num].data.items[0].snippet.title) + " from Queue");
+    text_channel.send("Removing " + FilterTitle(queue[num].data.items[0].snippet.title) + " from queue");
     if(num == 0)
     {
         if(queue.length == 1)
@@ -189,7 +189,11 @@ function GetLastSong(){
     return lastSong;
 }
 
+function GetPaused(){
+    return dispatcher!=null && dispatcher.paused;
+}
+
 module.exports = {
     SendToClient, PlaySong, PauseSong, UnpauseSong, StopSong, SkipSong, FilterTitle, QueueAdd, QueueLength, QueueClear,
-    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong, ShowQueue, RemoveSong
+    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong, ShowQueue, RemoveSong, GetPaused
 };

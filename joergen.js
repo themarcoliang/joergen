@@ -35,6 +35,12 @@ discord_client.on('message', async (msg) => {
     if(msg.author.bot){
         return;
     }
+
+    if(helpers.GetPaused())
+    {
+        text_channel.send("I'm paused btw");
+    }
+
     const split_message = msg.content.toLowerCase().split(' ');
     switch(split_message.slice(0,1).join(' ')){
         case("!play"):
@@ -123,7 +129,7 @@ discord_client.on('message', async (msg) => {
             // console.log(number);
             if(number == "" || number == null)
             {
-                text_channel.send("FUCK YOU TELL ME WHAT TO REMOVE NIGGER");
+                text_channel.send("FUCK YOU TELL ME WHAT TO REMOVE U HO");
                 break;
             }
             helpers.RemoveSong(text_channel, audio_channel, number);
