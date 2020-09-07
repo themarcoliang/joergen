@@ -112,6 +112,40 @@ function ShowQueue(text_channel){
     }
 }
 
+function RemoveSong(text_channel, audio_channel, num){
+    if(num < 0 || num >= queue.length)
+    {
+        text_channel.send("Number out of range, failed to remove");
+        return;
+    }
+    console.log("Removing item " + num + " from queue");
+    text_channel.send("Removing " + FilterTitle(queue[num].data.items[0].snippet.title) + " from Queue");
+    if(num == 0)
+    {
+        if(queue.length == 1)
+        {
+            queue = [];
+            StopSong(text_channel, audio_channel);
+        }
+        else
+        {
+            SkipSong(text_channel, audio_channel);
+        }
+    }
+    else if(num == queue.length - 1) //last item
+    {   
+        queue.pop();            
+    }
+    else
+    {
+        for(var i = num; i < queue.length - 1; i++)
+        {
+            queue[i] = queue[i+1];
+        }
+        queue.pop();
+    }
+}
+
 function FilterTitle(title){
     var res = title.replace(/&#39;/gi, "'");
     res = res.replace(/&amp;/gi, "&");
@@ -157,5 +191,5 @@ function GetLastSong(){
 
 module.exports = {
     SendToClient, PlaySong, PauseSong, UnpauseSong, StopSong, SkipSong, FilterTitle, QueueAdd, QueueLength, QueueClear,
-    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong, ShowQueue
+    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong, ShowQueue, RemoveSong
 };

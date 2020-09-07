@@ -117,6 +117,17 @@ discord_client.on('message', async (msg) => {
             text_channel = msg.channel;
             helpers.ShowQueue(text_channel);
             break;
+        case("!remove"):
+            text_channel = msg.channel;
+            const number = split_message.slice(1).join(' ');
+            // console.log(number);
+            if(number == "" || number == null)
+            {
+                text_channel.send("FUCK YOU TELL ME WHAT TO REMOVE NIGGER");
+                break;
+            }
+            helpers.RemoveSong(text_channel, audio_channel, number);
+            break;
         default:
             break;
     }
