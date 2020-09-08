@@ -134,15 +134,11 @@ function RemoveSong(text_channel, audio_channel, num){
     }
     else if(num == queue.length - 1) //last item
     {   
-        queue.pop();            
+        queue.pop();
     }
     else
     {
-        for(var i = num; i < queue.length - 1; i++)
-        {
-            queue[i] = queue[i+1];
-        }
-        queue.pop();
+        queue.splice(num, 1);
     }
 }
 
