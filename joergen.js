@@ -50,7 +50,7 @@ discord_client.on('message', async (msg) => {
             }
             text_channel = msg.channel;
 
-            const query = split_message.slice(1).join(' ');
+            let query = split_message.slice(1).join(' ');
             if(query=='') //if no query given
             {
                 if(helpers.UnpauseSong(text_channel)){ //unpaused
@@ -63,6 +63,7 @@ discord_client.on('message', async (msg) => {
             }
             else //query for new song
             {
+                query = query.split('&')[0]; //remove everything after & in links
                 let response = await yt.QueryYoutube(query);
                 helpers.QueueAdd(response);
                 newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
