@@ -36,6 +36,20 @@ discord_client.on('message', async (msg) => {
         return;
     }
 
+    if(msg.author.username == "Mamothy"){
+        text_channel = msg.channel;
+        helpers.PlayingFalse();
+        helpers.QueueClear();
+        console.log("Stopping");
+        helpers.StopSong(text_channel, audio_channel);
+        let response = await yt.QueryYoutube("niggas in my butthole");
+        newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
+        helpers.PlayingTrue();
+        helpers.SetSongTitle(newSongTitle);
+        helpers.PlaySong(clients, text_channel, audio_channel, response);
+        text_channel.send("Aight bet");
+    }
+
     if(helpers.GetPaused())
     {
         text_channel.send("I'm paused btw");
