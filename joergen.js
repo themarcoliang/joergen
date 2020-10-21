@@ -79,8 +79,15 @@ discord_client.on('message', async (msg) => {
             {
                 query = query.split('&')[0]; //remove everything after & in links
                 let response = await yt.QueryYoutube(query);
+                // console.log(response);
+                try{
+                    newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
+                }
+                catch(err){
+                    text_channel.send("wtf did you say?");
+                    break;
+                }
                 helpers.QueueAdd(response);
-                newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
                 if(helpers.QueueLength() == 1) //only song in queue
                 {
                     helpers.PlayingTrue();
