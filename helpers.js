@@ -1,4 +1,5 @@
-const ytdl = require('ytdl-core');
+// const ytdl = require('ytdl-core');
+const ytdl = require('ytdl-core-discord');
 var dispatcher = null;
 var queue = [];
 var playing = false;
@@ -23,10 +24,11 @@ function PlaySong(clients, text_channel, audio_channel, response){
     }
     lastSong = response;
     audio_channel.join().then(async(connection) => {
-        stream = ytdl('https://www.youtube.com/watch?v=' + id, 
+        url = 'https://www.youtube.com/watch?v=' + id;
+        stream = ytdl(url, 
         islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly'});
         
-        dispatcher = await connection.play(stream, {highWaterMark: 1});
+        dispatcher = await connection.play(await stream, {highWaterMark: 1, type: 'opus'});
         console.log("Now Playing: " + songTitle);
         text_channel.send("Ok, I'll play **" + songTitle + "**");
 
@@ -84,7 +86,7 @@ function StopSong(text_channel, audio_channel){
         if(queue.length == 0)
         {
             console.log("Bot disconnecting");
-            text_channel.send("Bye bitches");
+            // text_channel.send("Bye bitches");
             audio_channel.leave();
         }
     }

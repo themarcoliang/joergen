@@ -13,7 +13,8 @@
     "http": "0.0.1-security",
     "opusscript": "0.0.7",
     "websocket": "^1.0.32",
-    "ytdl-core": "^2.1.7"
+    "ytdl-core": "^2.1.7",
+    "ytdl-core-discord": "^1.2.4"
   },
   "devDependencies": {},
   "scripts": {

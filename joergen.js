@@ -50,6 +50,12 @@ discord_client.on('message', async (msg) => {
         text_channel.send("Aight bet");
     }
 
+    // if(msg.author.username == "PlsHireMe")
+    // {
+    //     msg.reply("lol nah")
+    //     return;
+    // }
+
     if(helpers.GetPaused())
     {
         text_channel.send("I'm paused btw");
