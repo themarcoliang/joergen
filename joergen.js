@@ -14,6 +14,10 @@ const { exit } = require("process");
 const discord_client = new Discord.Client();
 discord_client.login(keys.discord_token);
 
+//Profanity filter
+var Filter = require('bad-words');
+var filter = new Filter();
+
 var clients = [];
 var audio_channel = null;
 var text_channel = null;
@@ -56,6 +60,10 @@ discord_client.on('message', async (msg) => {
     //     msg.reply("lol nah")
     //     return;
     // }
+
+    if(filter.isProfane(msg.content)){
+        msg.reply("watch ur profanity")
+    }
 
     if(helpers.GetPaused())
     {

@@ -136,20 +136,20 @@ function RemoveSong(text_channel, audio_channel, num){
     }
     console.log("Removing item " + num + " from queue");
     text_channel.send("Removing " + FilterTitle(queue[num].data.items[0].snippet.title) + " from queue");
-    if(num == 0)
+    // if(num == 0)
+    // {
+    //     if(queue.length == 1)
+    //     {
+    //         queue = [];
+    //         StopSong(text_channel, audio_channel);
+    //     }
+    //     else
+    //     {
+    //         SkipSong(text_channel, audio_channel);
+    //     }
+    // }
+    if(num == queue.length - 1) //last item
     {
-        if(queue.length == 1)
-        {
-            queue = [];
-            StopSong(text_channel, audio_channel);
-        }
-        else
-        {
-            SkipSong(text_channel, audio_channel);
-        }
-    }
-    else if(num == queue.length - 1) //last item
-    {   
         queue.pop();
     }
     else
