@@ -10,6 +10,7 @@ const keys = JSON.parse(fs.readFileSync('./keys.json'));
 //Initializes Discord Client
 const Discord = require('discord.js');
 const { client } = require("websocket");
+const { exit } = require("process");
 const discord_client = new Discord.Client();
 discord_client.login(keys.discord_token);
 
@@ -154,10 +155,15 @@ discord_client.on('message', async (msg) => {
         case("!remove"):
             text_channel = msg.channel;
             const number = split_message.slice(1).join(' ');
-            // console.log(number);
-            if(number == "" || number == null)
+            if(helpers.QueueLength() <= 1)
             {
-                text_channel.send("FUCK YOU TELL ME WHAT TO REMOVE U HO");
+                msg.reply("Remove what the queue is empty bruh")
+                break;
+            }
+            if(number == "" || number == null || !Number.isInteger(parseInt(number)))
+            {
+                msg.reply("You need to put a valid number bruh u stoopid")
+                helpers.ShowQueue(text_channel)
                 break;
             }
             helpers.RemoveSong(text_channel, audio_channel, number);
@@ -169,14 +175,21 @@ discord_client.on('message', async (msg) => {
 
 //WebSocket Initialization
 
-const port = 6900;
-const websocketserver = require('websocket').server;
-const http = require('http');
-const socket = http.createServer();
-socket.listen(port);
-const wsServer = new websocketserver({
-    httpServer: socket
-});
+var wsServer = null
+try{
+    const port = 6900;
+    const websocketserver = require('websocket').server;
+    const http = require('http');
+    const socket = http.createServer();
+    socket.listen(port);
+    wsServer = new websocketserver({
+        httpServer: socket
+    });    
+}
+catch(error){
+    console.error("Error in listening to socket", error);
+    exit;
+}
 
 //Listens for new requests from iOS
 wsServer.on('request', (request) => {
@@ -207,6 +220,10 @@ wsServer.on('request', (request) => {
         }
     })
 })
+
+wsServer.on('error', (error) => {
+    console.error("Error with websocket", error)
+});
 
 async function iOS_request(command){
     switch (command.identifier){
@@ -257,3 +274,7 @@ async function iOS_request(command){
             break;
     }
 }
+
+process.on('unhandledRejection', error => {
+    console.log('unhandledRejection', error.message);
+});

@@ -4,6 +4,7 @@
   "description": "A discord bot that streams music from youtube",
   "main": "joergen.js",
   "dependencies": {
+    "@discordjs/opus": "^0.3.3",
     "dgram": "^1.0.1",
     "discord.js": "^12.4.0",
     "ffmpeg-static": "^4.2.7",

@@ -25,10 +25,17 @@ function PlaySong(clients, text_channel, audio_channel, response){
     lastSong = response;
     audio_channel.join().then(async(connection) => {
         url = 'https://www.youtube.com/watch?v=' + id;
-        stream = ytdl(url, 
-        islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly'});
+        try{
+            stream = ytdl(url, 
+            islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly'});
+            dispatcher = await connection.play(await stream, {highWaterMark: 1, type: 'opus'});
+        }
+        catch (error){
+            text_channel.send("I errored out lmao oops, \n" + error)
+            console.error("Error in streaming", error)
+            return
+        }
         
-        dispatcher = await connection.play(await stream, {highWaterMark: 1, type: 'opus'});
         console.log("Now Playing: " + songTitle);
         text_channel.send("Ok, I'll play **" + songTitle + "**");
 
@@ -107,11 +114,18 @@ function SkipSong(text_channel, audio_channel){
 
 function ShowQueue(text_channel){
     console.log("Printing Queue");
-    text_channel.send("The Current Queue is: ");
-    for(var i = 0; i < queue.length; i++)
+    if(queue.length <= 1)
     {
-        text_channel.send(i + ": " + FilterTitle(queue[i].data.items[0].snippet.title));
+        text_channel.send("Queue's empty");
+        return;
     }
+    text_channel.send("The Current Queue is: ");
+    q = ""
+    for(var i = 1; i < queue.length; i++)
+    {
+        q = q + i + ": " + FilterTitle(queue[i].data.items[0].snippet.title) + "\n";
+    }
+    text_channel.send(q)
 }
 
 function RemoveSong(text_channel, audio_channel, num){
