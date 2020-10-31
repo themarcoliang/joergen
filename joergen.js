@@ -62,7 +62,11 @@ discord_client.on('message', async (msg) => {
     // }
 
     if(filter.isProfane(msg.content)){
-        msg.reply("watch ur profanity")
+        msg.reply('watch ur profanity', {
+            files: [
+                "./watchProfanity.jpg"
+            ]
+        });
     }
 
     if(helpers.GetPaused())
@@ -175,6 +179,9 @@ discord_client.on('message', async (msg) => {
                 break;
             }
             helpers.RemoveSong(text_channel, audio_channel, number);
+            break;
+        case("!help"):
+            msg.reply("fuck you help yourself lmao");
             break;
         default:
             break;
