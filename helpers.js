@@ -33,7 +33,8 @@ function PlaySong(clients, text_channel, audio_channel, response){
         catch (error){
             text_channel.send("I errored out lmao oops, \n" + error)
             console.error("Error in streaming", error)
-            return
+            dispatcher.end()
+            return;
         }
         
         console.log("Now Playing: " + songTitle);
