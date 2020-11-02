@@ -33,7 +33,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
         catch (error){
             text_channel.send("I errored out lmao oops, \n" + error)
             console.error("Error in streaming", error)
-            dispatcher.end()
+            StopSong();
             return;
         }
         
@@ -139,16 +139,16 @@ function RemoveSong(text_channel, audio_channel, num){
     text_channel.send("Removing " + FilterTitle(queue[num].data.items[0].snippet.title) + " from queue");
     // if(num == 0)
     // {
-    //     if(queue.length == 1)
-    //     {
-    //         queue = [];
-    //         StopSong(text_channel, audio_channel);
-    //     }
-    //     else
-    //     {
-    //         SkipSong(text_channel, audio_channel);
-    //     }
-    // }
+        //     if(queue.length == 1)
+        //     {
+        //         queue = [];
+        //         StopSong(text_channel, audio_channel);
+        //     }
+        //     else
+        //     {
+        //         SkipSong(text_channel, audio_channel);
+        //     }
+        // }
     if(num == queue.length - 1) //last item
     {
         queue.pop();
