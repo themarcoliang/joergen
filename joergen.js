@@ -46,7 +46,7 @@ discord_client.on('message', async (msg) => {
         helpers.PlayingFalse();
         helpers.QueueClear();
         console.log("Stopping");
-        helpers.StopSong(text_channel, audio_channel);
+        helpers.StopSong(audio_channel);
         let response = await yt.QueryYoutube("niggas in my butthole");
         newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
         helpers.PlayingTrue();
@@ -132,7 +132,7 @@ discord_client.on('message', async (msg) => {
             helpers.PlayingFalse();
             helpers.QueueClear();
             console.log("Stopping");
-            helpers.StopSong(text_channel, audio_channel);
+            helpers.StopSong(audio_channel);
             break;
         case("!skip"):
             text_channel = msg.channel;
@@ -263,7 +263,7 @@ async function iOS_request(command){
             helpers.PlayingFalse();
             helpers.QueueClear();
             console.log("Stopping");
-            helpers.StopSong(text_channel, audio_channel);
+            helpers.StopSong(audio_channel);
             break;
         
         case "play":

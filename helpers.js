@@ -24,7 +24,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
     }
     lastSong = response;
     audio_channel.join().then(async(connection) => {
-        url = 'https://www.youtube.com/watch?v=' + id;
+            url = 'https://www.youtube.com/watch?v=' + id;
         try{
             stream = ytdl(url, 
             islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly'});
@@ -33,7 +33,9 @@ function PlaySong(clients, text_channel, audio_channel, response){
         catch (error){
             text_channel.send("I errored out lmao oops, \n" + error)
             console.error("Error in streaming", error)
-            StopSong();
+            PlayingFalse();
+            QueueClear();
+            StopSong(audio_channel);
             return;
         }
         
@@ -86,7 +88,7 @@ function UnpauseSong(text_channel){
     return 0;
 }
 
-function StopSong(text_channel, audio_channel){
+function StopSong(audio_channel){
     if(dispatcher!=null)
     {
         dispatcher.end();
