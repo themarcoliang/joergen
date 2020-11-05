@@ -222,7 +222,7 @@ wsServer.on('request', (request) => {
         if (message.type === 'utf8') {
             const dataFromClient = JSON.parse(message.utf8Data);
             console.log("Received Command: " + dataFromClient.identifier);
-            text_channel.send("Received a new command from Siri!");
+            text_channel.send("Received a new command from iOS!");
             iOS_request(dataFromClient);
         }
     })
