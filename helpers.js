@@ -32,6 +32,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
         }
         catch (error){
             text_channel.send("I errored out lmao oops, \n" + error)
+            text_channel.send("Clearing queue and stopping playback. you can add more songs now")
             console.error("Error in streaming", error)
             PlayingFalse();
             QueueClear();
