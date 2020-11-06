@@ -229,7 +229,7 @@ discord_client.on('message', async (msg) => {
             helpers.SetQueue(temp);
             var drop_locations = ["Superstore", "Dam", "Bermuda", "Boneyard", "Airport", "Lumber", "Promenade West", "Promenade East", "Stadium",
             "Miltary Base", "Downtown", "Farmland", "Quarry", "Prison", "TV Station", "Storage Town", "Train Station", "Port", "Hills"];
-            text_channel.send("Drop at *" + helpers.ChooseRandom(drop_locations) + "* fam");
+            text_channel.send("Drop at **" + helpers.ChooseRandom(drop_locations) + "** fam");
             break;
         default:
             break;
