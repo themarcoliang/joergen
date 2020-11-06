@@ -32,7 +32,7 @@ discord_client.on('ready', async () => {
         return;
     });
     console.log('Logged in as ' + discord_client.user.tag);
-    text_channel.send("`Joergen 2.0 is now online`");
+    text_channel.send("I'm on bitches");
 })
 
 discord_client.on('message', async (msg) => {
@@ -53,20 +53,13 @@ discord_client.on('message', async (msg) => {
         helpers.SetSongTitle(newSongTitle);
         helpers.PlaySong(clients, text_channel, audio_channel, response);
         text_channel.send("Aight bet");
+        return;
     }
 
     // if(msg.author.username == "PlsHireMe")
     // {
     //     msg.reply("lol nah")
     //     return;
-    // }
-
-    // if(filter.isProfane(msg.content)){
-    //     msg.reply('watch ur profanity', {
-    //         files: [
-    //             "./watchProfanity.jpg"
-    //         ]
-    //     });
     // }
 
     if(helpers.GetPaused())
@@ -182,6 +175,24 @@ discord_client.on('message', async (msg) => {
             break;
         case("!help"):
             msg.reply("fuck you help yourself lmao");
+            break;
+        case("!wz"):
+            text_channel = msg.channel;
+            temp = helpers.GetQueue();
+            helpers.PlayingFalse();
+            helpers.QueueClear();
+            console.log("Stopping");
+            helpers.StopSong(audio_channel);
+            let resp = await yt.QueryYoutube("fortunate son");
+            newSongTitle = helpers.FilterTitle(resp.data.items[0].snippet.title);
+            helpers.PlayingTrue();
+            helpers.SetSongTitle(newSongTitle);
+            helpers.PlaySong(clients, text_channel, audio_channel, resp);
+            console.log("New queue length: " + temp.unshift(resp));
+            helpers.SetQueue(temp);
+            var dropLocations = ["Superstore", "Dam", "Bermuda", "Boneyard", "Airport", "Lumber", "Promenade West", "Promenade East", "Stadium",
+            "Miltary Base", "Downtown", "Farmland", "Quarry", "Prison", "TV Station", "Storage Town", "Train Station", "Port", "Hills"];
+            text_channel.send("Drop at *" + helpers.ChooseRandom(dropLocations) + "* fam");
             break;
         default:
             break;

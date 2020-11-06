@@ -41,7 +41,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
         }
         
         console.log("Now Playing: " + songTitle);
-        text_channel.send("Ok, I'll play **" + songTitle + "**");
+        text_channel.send("Now playing **" + songTitle + "**");
 
         dispatcher.on('finish', ()=>{
             queue.shift(); //pops first item off
@@ -51,7 +51,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
                 PlayingFalse();
                 SendToClient(clients, "Nothing");
                 console.log('Finished playing');
-                text_channel.send("Finished playing");
+                // text_channel.send("Finished playing");
                 audio_channel.leave();
             }
             else //more songs to play
@@ -140,18 +140,7 @@ function RemoveSong(text_channel, audio_channel, num){
     }
     console.log("Removing item " + num + " from queue");
     text_channel.send("Removing " + FilterTitle(queue[num].data.items[0].snippet.title) + " from queue");
-    // if(num == 0)
-    // {
-        //     if(queue.length == 1)
-        //     {
-        //         queue = [];
-        //         StopSong(text_channel, audio_channel);
-        //     }
-        //     else
-        //     {
-        //         SkipSong(text_channel, audio_channel);
-        //     }
-        // }
+
     if(num == queue.length - 1) //last item
     {
         queue.pop();
@@ -179,6 +168,14 @@ function QueueLength(){
 
 function QueueClear(){
     queue = [];
+}
+
+function GetQueue(){
+    return queue;
+}
+
+function SetQueue(newQueue){
+    queue = newQueue;
 }
 
 function PlayingTrue(){
@@ -209,7 +206,12 @@ function GetPaused(){
     return dispatcher!=null && dispatcher.paused;
 }
 
+function ChooseRandom(list){
+    return list[Math.floor(Math.random() * list.length)];
+}
+
 module.exports = {
     SendToClient, PlaySong, PauseSong, UnpauseSong, StopSong, SkipSong, FilterTitle, QueueAdd, QueueLength, QueueClear,
-    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong, ShowQueue, RemoveSong, GetPaused
+    PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong, ShowQueue, RemoveSong, GetPaused, GetQueue, SetQueue,
+    ChooseRandom
 };
