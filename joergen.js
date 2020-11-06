@@ -22,6 +22,43 @@ var clients = [];
 var audio_channel = null;
 var text_channel = null;
 
+//help message
+const help_message = new Discord.MessageEmbed()
+    .setTitle('Commands list')
+    .setColor('#f723cd')
+    .addFields({
+        name: 'To play a song',
+        value:`!play [name of song/youtube link]`
+    })
+    .addFields({
+        name: 'To remove a song',
+        value:`!remove [number of the song you want to remove from queue]`
+    })
+    .addFields({
+        name: 'To show the current queue',
+        value:`!queue`
+    })
+    .addFields({
+        name: 'To pause',
+        value:`!pause`
+    })
+    .addFields({
+        name: 'To unpause',
+        value:`!play`
+    })
+    .addFields({
+        name: 'To skip the current song',
+        value:`!skip`
+    })
+    .addFields({
+        name: 'To replay the current song, or the last played if nothing is playing',
+        value:`!replay`
+    })
+    .addFields({
+        name: 'To stop me completely (pls don\'t)',
+        value:`!stop`
+    });
+
 discord_client.on('ready', async () => {
     audio_channel = await discord_client.channels.fetch(keys.default_audio_channel_id).catch((error)=>{
         console.error("Cannot fetch default audio channel", error);
@@ -174,7 +211,7 @@ discord_client.on('message', async (msg) => {
             helpers.RemoveSong(text_channel, audio_channel, number);
             break;
         case("!help"):
-            msg.reply("fuck you help yourself lmao");
+            text_channel.send(help_message);
             break;
         case("!wz"):
             text_channel = msg.channel;
@@ -190,9 +227,9 @@ discord_client.on('message', async (msg) => {
             helpers.PlaySong(clients, text_channel, audio_channel, resp);
             console.log("New queue length: " + temp.unshift(resp));
             helpers.SetQueue(temp);
-            var dropLocations = ["Superstore", "Dam", "Bermuda", "Boneyard", "Airport", "Lumber", "Promenade West", "Promenade East", "Stadium",
+            var drop_locations = ["Superstore", "Dam", "Bermuda", "Boneyard", "Airport", "Lumber", "Promenade West", "Promenade East", "Stadium",
             "Miltary Base", "Downtown", "Farmland", "Quarry", "Prison", "TV Station", "Storage Town", "Train Station", "Port", "Hills"];
-            text_channel.send("Drop at *" + helpers.ChooseRandom(dropLocations) + "* fam");
+            text_channel.send("Drop at *" + helpers.ChooseRandom(drop_locations) + "* fam");
             break;
         default:
             break;
