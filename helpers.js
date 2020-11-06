@@ -1,5 +1,5 @@
-// const ytdl = require('ytdl-core');
-const ytdl = require('ytdl-core-discord');
+const ytdl = require('ytdl-core');
+// const ytdl = require('ytdl-core-discord');
 var dispatcher = null;
 var queue = [];
 var playing = false;
