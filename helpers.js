@@ -24,7 +24,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
     }
     lastSong = response;
     audio_channel.join().then(async(connection) => {
-            url = 'https://www.youtube.com/watch?v=' + id;
+        url = 'https://www.youtube.com/watch?v=' + id;
         try{
             stream = ytdl(url, 
             islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly'});
@@ -32,12 +32,25 @@ function PlaySong(clients, text_channel, audio_channel, response){
         }
         catch (error){
             text_channel.send("I errored out lmao oops, \n" + error)
-            text_channel.send("Clearing queue and stopping playback. you can add more songs now")
+            text_channel.send("Lemme try again")
             console.error("Error in streaming", error)
-            PlayingFalse();
-            QueueClear();
-            StopSong(audio_channel);
-            return;
+            
+            try{
+                stream = ytdl(url, 
+                islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly'});
+                dispatcher = await connection.play(await stream, {highWaterMark: 1, type: 'opus'});
+            }
+            catch (error){
+                text_channel.send("I errored out lmao oops, \n" + error)
+                text_channel.send("Giving up, clearing queue and stopping. You can queue more songs now")
+                PlayingFalse();
+                temp = GetQueue();
+                temp.shift();
+                QueueClear();
+                StopSong(audio_channel);
+                SetQueue(temp);
+                SkipSong();
+            }
         }
         
         console.log("Now Playing: " + songTitle);
@@ -108,7 +121,7 @@ function SkipSong(text_channel, audio_channel){
     {
         console.log("Skipping");
         text_channel.send("Okay, skipping song");
-        StopSong(text_channel, audio_channel);
+        StopSong(audio_channel);
     }
     else
     {
