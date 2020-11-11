@@ -1,5 +1,5 @@
-// const ytdl = require('ytdl-core');
-const ytdl = require('ytdl-core-discord');
+const ytdl = require('ytdl-core');
+// const ytdl = require('ytdl-core-discord');
 var dispatcher = null;
 var queue = [];
 var playing = false;
@@ -28,7 +28,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
         try{
             stream = ytdl(url, 
             islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly'});
-            dispatcher = await connection.play(await stream, {highWaterMark: 1, type: 'opus'});
+            dispatcher = await connection.play(await stream, {highWaterMark: 1});
         }
         catch (error){
             text_channel.send("I errored out lmao oops, \n" + error)
@@ -38,7 +38,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
             try{
                 stream = ytdl(url, 
                 islive ? { quality: [128,127,120,96,95,94,93] } : {highWaterMark: 1<<25, filter: 'audioonly'});
-                dispatcher = await connection.play(await stream, {highWaterMark: 1, type: 'opus'});
+                dispatcher = await connection.play(await stream, {highWaterMark: 1});
             }
             catch (error){
                 text_channel.send("I errored out lmao oops, \n" + error)
