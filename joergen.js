@@ -332,6 +332,24 @@ async function iOS_request(command){
                 text_channel.send("Queued " + newSongTitle + " for later");
             }
             break;
+        case "replay":
+            let response = helpers.GetLastSong();
+            if (response != null){
+                helpers.QueueAdd(response);
+                newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
+                if(helpers.QueueLength() == 1) //only song in queue
+                {
+                    helpers.PlayingTrue();
+                    helpers.SetSongTitle(newSongTitle);
+                    helpers.PlaySong(clients, text_channel, audio_channel, response);
+                    helpers.SendToClient(clients, helpers.GetSongTitle());
+                }
+                else //something else playing
+                {
+                    console.log("Queuing " + newSongTitle + ", queue length: " + helpers.QueueLength());
+                    text_channel.send("Queued " + newSongTitle + " for later");
+                }
+            }
         default: 
             console.log("Unknown Command from iOS!")
             break;
