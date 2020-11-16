@@ -257,7 +257,7 @@ catch(error){
 //Listens for new requests from iOS
 wsServer.on('request', (request) => {
 
-    console.log( new Date().toLocaleTimeString() + "New Connection from " + request.remoteAddress);
+    console.log(new Date().toLocaleTimeString('en-US', { timeZone: 'Canada/Vancouver' }) + " - New Connection from " + request.remoteAddress);
     const connection = request.accept(null, request.origin);
     clients.push(connection);
     if(helpers.Playing()){
