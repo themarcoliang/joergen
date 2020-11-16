@@ -256,7 +256,7 @@ catch(error){
 
 //Listens for new requests from iOS
 wsServer.on('request', (request) => {
-    console.log(new Date() + "New Connection from " + request.url);
+    console.log(new Date() + "New Connection from " + request.origin);
     const connection = request.accept(null, request.origin);
     clients.push(connection);
     if(helpers.Playing()){
