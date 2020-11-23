@@ -263,6 +263,30 @@ wsServer.on('request', (request) => {
     if (allowedIP.includes(request.remoteAddress)){
         const connection = request.accept(null, request.origin);
         clients.push(connection);
+
+        if(helpers.Playing()){
+            helpers.SendToClient(clients, helpers.GetSongTitle());
+        }
+        else {
+            helpers.SendToClient(clients, "Nothing");
+        }
+    
+        connection.on('message', function(message){
+            if (message.type === 'utf8') {
+                const dataFromClient = JSON.parse(message.utf8Data);
+                console.log("Received Command: " + dataFromClient.identifier);
+                text_channel.send("Received a new command from iOS!");
+                iOS_request(dataFromClient);
+            }
+        })
+        connection.on('close', () => {
+            console.log("connection closed by client");
+            let clientIndex = clients.indexOf(connection);
+            if(clientIndex != -1)
+            {
+                clients.splice(clientIndex, 1);
+            }
+        })
     }
     else
     {
@@ -270,30 +294,6 @@ wsServer.on('request', (request) => {
         request.reject(403, "Unrecognized IP address");
         return;
     }
-    
-    if(helpers.Playing()){
-        helpers.SendToClient(clients, helpers.GetSongTitle());
-    }
-    else {
-        helpers.SendToClient(clients, "Nothing");
-    }
-
-    connection.on('message', function(message){
-        if (message.type === 'utf8') {
-            const dataFromClient = JSON.parse(message.utf8Data);
-            console.log("Received Command: " + dataFromClient.identifier);
-            text_channel.send("Received a new command from iOS!");
-            iOS_request(dataFromClient);
-        }
-    })
-    connection.on('close', () => {
-        console.log("connection closed by client");
-        let clientIndex = clients.indexOf(connection);
-        if(clientIndex != -1)
-        {
-            clients.splice(clientIndex, 1);
-        }
-    })
 })
 
 wsServer.on('error', (error) => {
