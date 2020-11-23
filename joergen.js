@@ -254,12 +254,22 @@ catch(error){
     exit;
 }
 
+let allowedIP = ["::ffff:192.168.1.70"]
+
 //Listens for new requests from iOS
 wsServer.on('request', (request) => {
 
     console.log(new Date().toLocaleTimeString('en-US', { timeZone: 'Canada/Pacific' }) + " pst - New Connection from " + request.remoteAddress);
-    const connection = request.accept(null, request.origin);
-    clients.push(connection);
+    if (allowedIP.includes(request.remoteAddress)){
+        const connection = request.accept(null, request.origin);
+        clients.push(connection);
+    }
+    else
+    {
+        request.reject(403, "Unrecognized IP address");
+        return;
+    }
+    
     if(helpers.Playing()){
         helpers.SendToClient(clients, helpers.GetSongTitle());
     }
