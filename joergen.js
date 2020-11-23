@@ -274,7 +274,14 @@ wsServer.on('request', (request) => {
         connection.on('message', function(message){
             if (message.type === 'utf8') {
                 const dataFromClient = JSON.parse(message.utf8Data);
-                console.log("Received Command: " + dataFromClient.identifier);
+                command = dataFromClient.identifier;
+                if(command == "play")
+                {
+                    console.log("Received Command: " + command + " " + dataFromClient.argument);
+                }
+                else{
+                    console.log("Received Command: " + command);
+                }
                 text_channel.send("Received a new command from iOS!");
                 iOS_request(dataFromClient);
             }
