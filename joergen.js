@@ -266,6 +266,7 @@ wsServer.on('request', (request) => {
     }
     else
     {
+        console.log("Rejected connection from " + request.remoteAddress);
         request.reject(403, "Unrecognized IP address");
         return;
     }
