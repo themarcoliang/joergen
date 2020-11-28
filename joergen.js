@@ -282,7 +282,7 @@ wsServer.on('request', (request) => {
                 else{
                     console.log("Received Command: " + command);
                 }
-                text_channel.send("Received a new command from iOS!");
+                text_channel.send("**Received a new command from iOS!**");
                 iOS_request(dataFromClient);
             }
         })
