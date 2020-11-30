@@ -254,7 +254,13 @@ catch(error){
     exit;
 }
 
-let allowedIP = ["::ffff:192.168.1.70", "::ffff:207.161.46.245", "::ffff:75.157.84.103", "::ffff:70.75.192.212", "::ffff:173.180.119.114"]
+let allowedIP = [
+    "::ffff:192.168.1.70", 
+    "::ffff:192.168.1.74",
+    "::ffff:207.161.46.245", 
+    "::ffff:75.157.84.103", 
+    "::ffff:70.75.192.212", 
+    "::ffff:173.180.119.114"]
 
 //Listens for new requests from iOS
 wsServer.on('request', (request) => {
