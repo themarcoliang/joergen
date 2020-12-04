@@ -5,6 +5,7 @@
   "main": "joergen.js",
   "dependencies": {
     "@discordjs/opus": "latest",
+    "apple-music-playlist": "^1.0.1",
     "discord.js": "latest",
     "ffmpeg-static": "latest",
     "fs": "latest",

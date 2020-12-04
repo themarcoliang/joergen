@@ -6,6 +6,7 @@ const fs = require('fs');
 
 //Imports keys from keys.json
 const keys = JSON.parse(fs.readFileSync('./keys.json'));
+const allowedIP = JSON.parse(fs.readFileSync('./ips.json'))
 
 //Initializes Discord Client
 const Discord = require('discord.js');
@@ -253,14 +254,6 @@ catch(error){
     console.error("Error in listening to socket", error);
     exit;
 }
-
-let allowedIP = [
-    "::ffff:192.168.1.70", 
-    "::ffff:192.168.1.74",
-    "::ffff:207.161.46.245", 
-    "::ffff:75.157.84.103", 
-    "::ffff:70.75.192.212", 
-    "::ffff:173.180.119.114"]
 
 //Listens for new requests from iOS
 wsServer.on('request', (request) => {
