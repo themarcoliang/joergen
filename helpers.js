@@ -3,7 +3,7 @@ const ytdl = require('ytdl-core');
 var dispatcher = null;
 var queue = [];
 var playing = false;
-var songTitle = "";
+var songTitle = "Nothing";
 var lastSong = null;
 
 function SendToClient(clients, message) {
@@ -62,6 +62,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
             if(queue.length == 0) //queue is empty
             {
                 PlayingFalse();
+                songTitle = "Nothing"
                 SendToClient(clients, "Nothing");
                 console.log('Finished playing');
                 // text_channel.send("Finished playing");
