@@ -259,6 +259,13 @@ catch(error){
 wsServer.on('request', (request) => {
 
     console.log(new Date().toLocaleTimeString('en-US', { timeZone: 'Canada/Pacific' }) + " pst - New Connection from " + request.remoteAddress);
+    if(typeof request.remoteAddress == 'undefined')
+    {
+        console.log("Rejected undefined IP Address");
+        request.reject(403, "Undefined IP address");
+        return;
+    }
+    
     if (allowedIP.includes(request.remoteAddress) || request.remoteAddress.startsWith("::ffff:192.168.1")){
         const connection = request.accept(null, request.origin);
         clients.push(connection);
