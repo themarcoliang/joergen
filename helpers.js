@@ -8,7 +8,7 @@ var lastSong = null;
 
 function SendToClient(clients, message) {
     clients.forEach((client) => {
-        client.sendUTF(JSON.stringify({type: 'song_title', payload: message}));
+        client.send(JSON.stringify({type: 'song_title', payload: message}));
     });
 }
 
@@ -22,7 +22,7 @@ function SendQueue(clients){
     }
     console.log("Sending queue to iOS: " + queueToSend)
     clients.forEach((client) => {
-        client.sendUTF(JSON.stringify({type: 'queue', payload: JSON.stringify(queueToSend)}));
+        client.send(JSON.stringify({type: 'queue', payload: queueToSend}));
     });
 }
 
@@ -73,6 +73,7 @@ function PlaySong(clients, text_channel, audio_channel, response){
         dispatcher.on('finish', ()=>{
             queue.shift(); //pops first item off
             console.log('Queue Length: ' + queue.length);
+            SendQueue(clients)
             if(queue.length == 0) //queue is empty
             {
                 PlayingFalse();
