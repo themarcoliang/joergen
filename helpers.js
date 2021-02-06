@@ -12,6 +12,20 @@ function SendToClient(clients, message) {
     });
 }
 
+function SendQueue(clients){
+    queueToSend = []
+    queue.forEach((entry) => {
+        queueToSend.push(FilterTitle(entry.data.items[0].snippet.title))
+    });
+    if (queueToSend.length > 0) {
+        queueToSend.shift() //pop first item off (currently playing)
+    }
+    console.log("Sending queue to iOS: " + queueToSend)
+    clients.forEach((client) => {
+        client.sendUTF(JSON.stringify({type: 'queue', payload: queueToSend}));
+    });
+}
+
 function PlaySong(clients, text_channel, audio_channel, response){
     try{
         var id = response.data.items[0].id.videoId;
@@ -231,7 +245,7 @@ function ChooseRandom(list){
 }
 
 module.exports = {
-    SendToClient, PlaySong, PauseSong, UnpauseSong, StopSong, SkipSong, FilterTitle, QueueAdd, QueueLength, QueueClear,
+    SendToClient, SendQueue, PlaySong, PauseSong, UnpauseSong, StopSong, SkipSong, FilterTitle, QueueAdd, QueueLength, QueueClear,
     PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong, ShowQueue, RemoveSong, GetPaused, GetQueue, SetQueue,
     ChooseRandom, MoveSongs
 };

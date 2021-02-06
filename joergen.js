@@ -299,6 +299,8 @@ wsServer.on('request', (request) => {
         else {
             helpers.SendToClient(clients, "Nothing");
         }
+
+        helpers.SendQueue(clients)
     
         connection.on('message', function(message){
             if (message.type === 'utf8') {
@@ -341,6 +343,7 @@ async function iOS_request(command){
         case 'unpause':
             if(helpers.UnpauseSong(text_channel)){
                 helpers.SendToClient(clients, helpers.GetSongTitle());
+                helpers.SendQueue(clients)
                 helpers.PlayingTrue();
             }
             break;
@@ -349,6 +352,7 @@ async function iOS_request(command){
             helpers.PlayingFalse();
             helpers.PauseSong(text_channel);
             helpers.SendToClient(clients, "Paused");
+            helpers.SendQueue(clients)
             break;
 
         case "skip":
@@ -366,6 +370,7 @@ async function iOS_request(command){
             query = command.argument;
             let response = await yt.QueryYoutube(query);
             helpers.QueueAdd(response);
+            helpers.SendQueue(clients)
             newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
             if(helpers.QueueLength() == 1) //only song in queue
             {
@@ -384,6 +389,7 @@ async function iOS_request(command){
             let resp = helpers.GetLastSong();
             if (resp != null){
                 helpers.QueueAdd(resp);
+                helpers.SendQueue(clients)
                 newSongTitle = helpers.FilterTitle(resp.data.items[0].snippet.title);
                 if(helpers.QueueLength() == 1) //only song in queue
                 {
