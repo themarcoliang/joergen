@@ -8,7 +8,7 @@ var lastSong = null;
 
 function SendToClient(clients, message) {
     clients.forEach((client) => {
-        client.sendUTF(message);
+        client.sendUTF(JSON.stringify({type: 'song_title', payload: message}));
     });
 }
 
