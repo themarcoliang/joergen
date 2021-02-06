@@ -232,6 +232,29 @@ discord_client.on('message', async (msg) => {
             "Miltary Base", "Downtown", "Farmland", "Quarry", "Prison", "TV Station", "Storage Town", "Train Station", "Port", "Hills"];
             text_channel.send("Drop at **" + helpers.ChooseRandom(drop_locations) + "** fam");
             break;
+        case("!move"):
+            let from = parseInt(split_message.slice(1,2))
+            let to = parseInt(split_message.slice(2,3))
+            let qLength = helpers.QueueLength()
+            if(isNaN(from) || isNaN(to))
+            {
+                text_channel.send("Bruh what are those positions")
+                break;
+            }
+            if(from < 1 || to < 1 || from >= qLength || to >= qLength)
+            {
+                text_channel.send("Nah fam, I can't move those")
+                break;
+            }
+            if(from == to){
+                text_channel.send("They the same songs bro")
+                break;
+            }
+            text_channel = msg.channel;
+            helpers.MoveSongs(from, to)
+            text_channel.send("Swapped songs " + from + " and " + to);
+            helpers.ShowQueue(text_channel);
+            break;
         default:
             break;
     }

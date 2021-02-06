@@ -192,6 +192,12 @@ function SetQueue(newQueue){
     queue = newQueue;
 }
 
+function MoveSongs(fromPos, toPos){
+    temp = queue[toPos]
+    queue[toPos] = queue[fromPos]
+    queue[fromPos] = temp
+}
+
 function PlayingTrue(){
     playing = true;
 }
@@ -227,5 +233,5 @@ function ChooseRandom(list){
 module.exports = {
     SendToClient, PlaySong, PauseSong, UnpauseSong, StopSong, SkipSong, FilterTitle, QueueAdd, QueueLength, QueueClear,
     PlayingTrue, PlayingFalse, Playing, SetSongTitle, GetSongTitle, GetLastSong, ShowQueue, RemoveSong, GetPaused, GetQueue, SetQueue,
-    ChooseRandom
+    ChooseRandom, MoveSongs
 };
