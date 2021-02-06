@@ -22,7 +22,7 @@ function SendQueue(clients){
     }
     console.log("Sending queue to iOS: " + queueToSend)
     clients.forEach((client) => {
-        client.sendUTF(JSON.stringify({type: 'queue', payload: queueToSend}));
+        client.sendUTF(JSON.stringify({type: 'queue', payload: JSON.stringify(queueToSend)}));
     });
 }
 
