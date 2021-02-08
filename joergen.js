@@ -138,6 +138,7 @@ discord_client.on('message', async (msg) => {
                     break;
                 }
                 helpers.QueueAdd(response);
+                helpers.SendQueue(clients);
                 if(helpers.QueueLength() == 1) //only song in queue
                 {
                     helpers.PlayingTrue();
@@ -176,6 +177,7 @@ discord_client.on('message', async (msg) => {
             }
             else{
                 helpers.QueueAdd(response);
+                helpers.SendQueue(clinets)
                 newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
                 if(helpers.QueueLength() == 1) //only song in queue
                 {
