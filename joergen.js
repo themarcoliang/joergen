@@ -177,7 +177,7 @@ discord_client.on('message', async (msg) => {
             }
             else{
                 helpers.QueueAdd(response);
-                helpers.SendQueue(clinets)
+                helpers.SendQueue(clients)
                 newSongTitle = helpers.FilterTitle(response.data.items[0].snippet.title);
                 if(helpers.QueueLength() == 1) //only song in queue
                 {
