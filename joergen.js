@@ -165,10 +165,12 @@ discord_client.on('message', async (msg) => {
             helpers.QueueClear();
             console.log("Stopping");
             helpers.StopSong(audio_channel);
+            helpers.SendQueue(clients);
             break;
         case("!skip"):
             text_channel = msg.channel;
             helpers.SkipSong(text_channel, audio_channel);
+            helpers.SendQueue(clients);
             break;
         case("!replay"):
             let response = helpers.GetLastSong();
@@ -212,6 +214,7 @@ discord_client.on('message', async (msg) => {
                 break;
             }
             helpers.RemoveSong(text_channel, audio_channel, number);
+            helpers.SendQueue(clients);
             break;
         case("!help"):
             text_channel.send(help_message);
@@ -230,6 +233,7 @@ discord_client.on('message', async (msg) => {
             helpers.PlaySong(clients, text_channel, audio_channel, resp);
             console.log("New queue length: " + temp.unshift(resp));
             helpers.SetQueue(temp);
+            helpers.SendQueue(clients);
             var drop_locations = ["Superstore", "Dam", "Bermuda", "Boneyard", "Airport", "Lumber", "Promenade West", "Promenade East", "Stadium",
             "Miltary Base", "Downtown", "Farmland", "Quarry", "Prison", "TV Station", "Storage Town", "Train Station", "Port", "Hills"];
             text_channel.send("Drop at **" + helpers.ChooseRandom(drop_locations) + "** fam");
@@ -256,6 +260,7 @@ discord_client.on('message', async (msg) => {
             helpers.MoveSongs(from, to)
             text_channel.send("Swapped songs " + from + " and " + to);
             helpers.ShowQueue(text_channel);
+            helpers.SendQueue(clients);
             break;
         default:
             break;
@@ -366,6 +371,7 @@ async function iOS_request(command){
             helpers.QueueClear();
             console.log("Stopping");
             helpers.StopSong(audio_channel);
+            helpers.SendQueue(clients)
             break;
         
         case "play":
