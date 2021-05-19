@@ -173,6 +173,12 @@ discord_client.on('message', async (msg) => {
             helpers.SendQueue(clients);
             break;
         case("!replay"):
+            text_channel = msg.channel;
+            if(msg.member.voice.channel)
+            {
+                audio_channel = msg.member.voice.channel;
+            }
+            text_channel = msg.channel;
             let response = helpers.GetLastSong();
             if (response == null){
                 msg.reply("Yeah...no");
@@ -239,6 +245,7 @@ discord_client.on('message', async (msg) => {
             text_channel.send("Drop at **" + helpers.ChooseRandom(drop_locations) + "** fam");
             break;
         case("!move"):
+            text_channel = msg.channel;
             let from = parseInt(split_message.slice(1,2))
             let to = parseInt(split_message.slice(2,3))
             let qLength = helpers.QueueLength()
@@ -256,7 +263,7 @@ discord_client.on('message', async (msg) => {
                 text_channel.send("They the same songs bro")
                 break;
             }
-            text_channel = msg.channel;
+            
             helpers.MoveSongs(from, to)
             text_channel.send("Swapped songs " + from + " and " + to);
             helpers.ShowQueue(text_channel);

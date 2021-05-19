@@ -91,7 +91,12 @@ function PlaySong(clients, text_channel, audio_channel, response){
             }
         });
 
-        dispatcher.on('error', console.error); //error listener
+        //error listener
+        dispatcher.on('error', (error)=>{
+            console.error(error);
+            text_channel.send("Something bad happened here...");
+            SkipSong(text_channel, audio_channel);
+        }); 
     })
 }
 
