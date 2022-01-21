@@ -225,7 +225,7 @@ discord_client.on('message', async (msg) => {
         case("!help"):
             text_channel.send(help_message);
             break;
-        case("!wz"):
+        case("!br"):
             text_channel = msg.channel;
             temp = helpers.GetQueue();
             helpers.PlayingFalse();
@@ -240,10 +240,29 @@ discord_client.on('message', async (msg) => {
             console.log("New queue length: " + temp.unshift(resp));
             helpers.SetQueue(temp);
             helpers.SendQueue(clients);
-            var drop_locations = ["Superstore", "Dam", "Bermuda", "Boneyard", "Airport", "Lumber", "Promenade West", "Promenade East", "Stadium",
-            "Miltary Base", "Downtown", "Farmland", "Quarry", "Prison", "TV Station", "Storage Town", "Train Station", "Port", "Hills"];
-            text_channel.send("Drop at **" + helpers.ChooseRandom(drop_locations) + "** fam");
+            var drop_locationsBr = ["Arsenal" , "Docks", "Runway", "Ruins", "Mines", "Peak", "Beachhead", 
+                "Village", "Lagoon", "Airfield", "Fields", "Sub Pen", "Power Plant", "Capital", "Resort"];
+            text_channel.send("Drop at **" + helpers.ChooseRandom(drop_locationsBr) + "** fam");
             break;
+        case("!rs"):
+            text_channel = msg.channel;
+            temp = helpers.GetQueue();
+            helpers.PlayingFalse();
+            helpers.QueueClear();
+            console.log("Stopping");
+            helpers.StopSong(audio_channel);
+            let resp = await yt.QueryYoutube("How far I'll go");
+            newSongTitle = helpers.FilterTitle(resp.data.items[0].snippet.title);
+            helpers.PlayingTrue();
+            helpers.SetSongTitle(newSongTitle);
+            helpers.PlaySong(clients, text_channel, audio_channel, resp);
+            console.log("New queue length: " + temp.unshift(resp));
+            helpers.SetQueue(temp);
+            helpers.SendQueue(clients);
+            var drop_locationsRs = ["Bioweapons Lab", "Chemical Eng.", "Construction Site", "Decon Zone", 
+            "Factory", "Harbor", "Headquarters", "Living Quarters", "Prison Block", "Security Area", "Shore"];
+            text_channel.send("Drop at **" + helpers.ChooseRandom(drop_locationsRs) + "** fam");
+            
         case("!move"):
             text_channel = msg.channel;
             let from = parseInt(split_message.slice(1,2))
