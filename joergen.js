@@ -251,12 +251,12 @@ discord_client.on('message', async (msg) => {
             helpers.QueueClear();
             console.log("Stopping");
             helpers.StopSong(audio_channel);
-            let resp = await yt.QueryYoutube("How far I'll go");
-            newSongTitle = helpers.FilterTitle(resp.data.items[0].snippet.title);
+            let resp2 = await yt.QueryYoutube("How far I'll go");
+            newSongTitle = helpers.FilterTitle(resp2.data.items[0].snippet.title);
             helpers.PlayingTrue();
             helpers.SetSongTitle(newSongTitle);
-            helpers.PlaySong(clients, text_channel, audio_channel, resp);
-            console.log("New queue length: " + temp.unshift(resp));
+            helpers.PlaySong(clients, text_channel, audio_channel, resp2);
+            console.log("New queue length: " + temp.unshift(resp2));
             helpers.SetQueue(temp);
             helpers.SendQueue(clients);
             var drop_locationsRs = ["Bioweapons Lab", "Chemical Eng.", "Construction Site", "Decon Zone", 
