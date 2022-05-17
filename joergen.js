@@ -94,12 +94,6 @@ discord_client.on('message', async (msg) => {
         return;
     }
 
-    // if(msg.author.username == "PlsHireMe")
-    // {
-    //     msg.reply("lol nah")
-    //     return;
-    // }
-
     if(helpers.GetPaused())
     {
         text_channel.send("I'm paused btw");
@@ -262,7 +256,6 @@ discord_client.on('message', async (msg) => {
             var drop_locationsRs = ["Bioweapons Lab", "Chemical Eng.", "Construction Site", "Decon Zone", 
             "Factory", "Harbor", "Headquarters", "Living Quarters", "Prison Block", "Security Area", "Shore"];
             text_channel.send("Drop at **" + helpers.ChooseRandom(drop_locationsRs) + "** fam");
-            
         case("!move"):
             text_channel = msg.channel;
             let from = parseInt(split_message.slice(1,2))
@@ -287,6 +280,18 @@ discord_client.on('message', async (msg) => {
             text_channel.send("Swapped songs " + from + " and " + to);
             helpers.ShowQueue(text_channel);
             helpers.SendQueue(clients);
+            break;
+        case("hi"):
+            text_channel = msg.channel;
+            helpers.PlayingFalse();
+            helpers.QueueClear();
+            console.log("Stopping");
+            helpers.StopSong(audio_channel);
+            let res = await yt.QueryYoutube("https://www.youtube.com/watch?v=ULaRxkhNasc");
+            newSongTitle = helpers.FilterTitle(res.data.items[0].snippet.title);
+            helpers.PlayingTrue();
+            helpers.SetSongTitle(newSongTitle);
+            helpers.PlaySong(clients, text_channel, audio_channel, res);
             break;
         default:
             break;

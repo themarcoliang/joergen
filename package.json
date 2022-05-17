@@ -13,9 +13,8 @@
     "http": "latest",
     "opusscript": "latest",
     "websocket": "^1.0.34",
-    "ytdl-core": "latest"
+    "ytdl-core": "^4.11.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "node joergen.js"
   },
