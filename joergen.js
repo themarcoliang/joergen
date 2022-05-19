@@ -290,31 +290,33 @@ discord_client.on('message', async (msg) => {
             helpers.SendQueue(clients);
             break;
         case("hi"):
-            if(msg.member.voice.channel)
-            {
-                audio_channel = msg.member.voice.channel;
-            }
-            text_channel = msg.channel;
-            temp = helpers.GetQueue();
-            helpers.PlayingFalse();
-            helpers.QueueClear();
-            console.log("Stopping");
-            helpers.StopSong(audio_channel);
-            let res = await yt.QueryYoutube("https://www.youtube.com/watch?v=tSSAMUlYuEU");
-            newSongTitle = helpers.FilterTitle(res.data.items[0].snippet.title);
-            helpers.PlayingTrue();
-            helpers.SetSongTitle(newSongTitle);
-            helpers.PlaySong(clients, text_channel, audio_channel, res);
-            console.log("New queue length: " + temp.unshift(res));
-            helpers.SetQueue(temp);
-            helpers.SendQueue(clients);
-
+            skipAndPlay(msg, "https://www.youtube.com/watch?v=tSSAMUlYuEU")
             break;
         default:
             break;
     }
 });
 
+async function skipAndPlay(msg, url) {
+    if(msg.member.voice.channel)
+    {
+        audio_channel = msg.member.voice.channel;
+    }
+    text_channel = msg.channel;
+    temp = helpers.GetQueue();
+    helpers.PlayingFalse();
+    helpers.QueueClear();
+    console.log("Stopping");
+    helpers.StopSong(audio_channel);
+    let res = await yt.QueryYoutube(url);
+    newSongTitle = helpers.FilterTitle(res.data.items[0].snippet.title);
+    helpers.PlayingTrue();
+    helpers.SetSongTitle(newSongTitle);
+    helpers.PlaySong(clients, text_channel, audio_channel, res);
+    console.log("New queue length: " + temp.unshift(res));
+    helpers.SetQueue(temp);
+    helpers.SendQueue(clients);
+}
 //WebSocket Initialization
 
 var wsServer = null
